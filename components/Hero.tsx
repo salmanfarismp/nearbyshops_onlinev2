@@ -24,23 +24,23 @@ export const Hero = () => {
           {/* Decorative background element */}
           <div className="absolute -right-20 -top-20 w-[500px] h-[500px] bg-orange-100/50 rounded-full blur-3xl -z-10"></div>
           
-          <div className="iphone-frame w-[260px] h-[530px] -translate-y-12 rotate-[-5deg] relative">
+          <div className="w-[260px] h-[530px] -translate-y-12 rotate-[-5deg] relative">
             <Image 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDo_-1wtkxqa5oWFfIy7HODYMR-n6dzj9RDSyRCeTaGC3e4RgU3LupcqjZodptQZRy5JVxipBFHtaWwGn46KXrx6RvGX-ub8hdNtE3SmFVU3AtMrEhAYwwTCLLzeJmMRxkaanZtO69GfBDiDbSPtnvjIWI-pk3_e7DcmzHdmv4kKNQZM519isXnlA6oKESMrF0RoVGejM0tF4Rgoa_VzecR7hYIu4p46_1hLDdn1xuNtSj0JTb-L1GJT-8l6ln6MCLMGE-HcyVU6FI"
+              src="/assets/screen 1.png"
               alt="App screenshot"
               fill
-              className="object-cover"
+              className="object-contain drop-shadow-2xl"
               sizes="(max-width: 768px) 100vw, 260px"
               priority
             />
           </div>
           
-          <div className="iphone-frame w-[260px] h-[530px] translate-y-12 rotate-[5deg] relative">
+          <div className="w-[260px] h-[530px] translate-y-12 rotate-[5deg] relative">
             <Image 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1DJWuevn3icNnpP0LUXEaQaYl7ejwGwSzTFQdnrC2l0UoFN7bjlL2CDu1pLBNkfiVjuhmbobH6aTrQMK43thgI8cGutFNZR5Bko5iD1cNBtADUrC7QHqIG8BkgUeFsWpzzoKIArP97IAfb34iqGG9tDWfQ1KeIB-GU4TXXfWwQ0Zl2Oh-ztPZ10_SYulFYHhVCTDbvnJopcmhcOZI3ywumCEDqUfvKLuJduamP1iH51SNI2rJdyWtjh-bPCY_pkge59llzC-EV4o"
+              src="/assets/screen 2.png"
               alt="App screenshot product detail"
               fill
-              className="object-cover"
+              className="object-contain drop-shadow-2xl"
               sizes="(max-width: 768px) 100vw, 260px"
               priority
             />

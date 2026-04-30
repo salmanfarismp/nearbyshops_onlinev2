@@ -17,7 +17,7 @@ export const StorySection = () => {
             <div className="flex-1 min-w-[300px] w-full">
               <div className="relative w-full aspect-4/3 rounded-[2rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(151,72,0,0.15)]">
                 <Image 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdZjJg6STSUyKG_mJDuXr9s8Ow9mv2lS00zMF1kmXm02sYXMgx7iiOaOv-v627GO6cU8CDVUnbmF2_dHyEvtq8QaWfhGs6Z3Ee47chyULmTJyg0toWGiP9_tuZyBxNlEhIazl1Pu_jTJ829u-HW-y84xWONSVYXgfYqegSGd8whNXZX6SG1awtTNu0yuYbzp4pPArGgFqwjYNBfQyazuLtcJWdCUSuF3Jlj5FPxtmZ2lFDIJHCUpY4HWSNvA9ANOxrJ97OpAktWYE" 
+                  src="/assets/first.jpg" 
                   alt="Anjali sitting at her desk with a laptop in a cozy room"
                   fill
                   className="object-cover"
@@ -39,7 +39,7 @@ export const StorySection = () => {
             <div className="flex-1 min-w-[300px] w-full">
               <div className="relative w-full aspect-4/3 rounded-[2rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(151,72,0,0.15)]">
                 <Image 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN8fA6GqsiYaul6mijGAiXQyU1fs81MS9mq2HOJUqnrF0w0Kqfq2nqjVSfTe6niu5MjsLfmKKTTykqSqQPGxsuKwc5ERc81qiNh6yTlruVgmdi7WX3MGU_buA7841Oh_iEFBnlJs7fpGnFHTmBfQaivXde6MglGZ1Nfthf4RYb8pOaCmQlMMEAMS0lQSyGBfdt20euOb3SHzhzmGg6rHWaIUWttwhho9meCNtZTehr1RZDdXPA2HMRKriDJHZHqgIGXYO2kb29YGg" 
+                  src="/assets/second.jpg" 
                   alt="Warm boutique interior with vibrant Kerala sarees"
                   fill
                   className="object-cover"
@@ -60,7 +60,7 @@ export const StorySection = () => {
             <div className="flex-1 min-w-[300px] w-full">
               <div className="relative w-full aspect-4/3 rounded-[2rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(151,72,0,0.15)]">
                 <Image 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuArzjTryp6mhgh_fsk-LdCNbF4Usu7tVK8fuUIO4kluPZh3crP-1rEcTAsBMnMIsIx_M_d9dTsMOf8RIMSdxv3OzyWIPz5hOkC5q5dE23AP7FXMI-CmlztJtLRwhSUHZ01g8EW1qxFEXJxnXT-plEowIAUCDFoLpl4Or9Fb40sdhXqlQtiYOdrjIFyD4NTR0fN0sDR0WIbyaWx7oyeQCJO91AnPwI_7jl4E41sMpUblUUDigX4JP6ZPR5UXi57i9NV3pNZnSw24V2A" 
+                  src="/assets/third.jpg" 
                   alt="Traditional local grocer and tailor workshop scene"
                   fill
                   className="object-cover"
@@ -81,7 +81,7 @@ export const StorySection = () => {
             <div className="flex-1 min-w-[300px] w-full">
               <div className="relative w-full aspect-4/3 rounded-[2rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(151,72,0,0.15)]">
                 <Image 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4j6Bbx4nTY2yAQ6wwxG-wNBFwPsrlQOtarSvgyJHO77U7ju4pfjdIzLl1WL9uJeOPLUbMrky192naltIqJWdIyC8Sg2tQlTi2BA6OakZDRsIUCMIdqzLKdz_YcvpMebmhSe_Ogwvlb9Gb7XFC_ncua1ZmboQXJlO_g_pbQEDeFPknLcKU6q7T7ivI3Chf5FwBr-YvAw0nlc8uF4RxEuTsR7WDnAzvCNAb0E7uO91dLTmMaLqLYAzyRsP-8Xt8V0J1-lfc_MiXECY" 
+                  src="/assets/fourth.jpg" 
                   alt="Atmospheric Kerala farmers market with fresh produce"
                   fill
                   className="object-cover"
