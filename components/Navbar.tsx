@@ -17,7 +17,7 @@ const NavbarContent = () => {
       <Container className="flex justify-between items-center h-20">
         <Link href="/" className="text-2xl font-black text-primary-container tracking-tighter flex items-center">
           <Image 
-            src="https://lh3.googleusercontent.com/aida/ADBb0uipWJb82nbC5SvrynNrv7Lmk8DZAp9_wSToa2ExjrePVwmP4GT3vvS6F_21AHlUGfAY9Dz1a6Oa1MV-qQ8SEYccEiCPyfWWATU8_eqDpWha2aZQiPZd_42qlXxFnSQUiDk1sB7GiiL0H8iIzcUPgCGHgTQtsPaKonokEURHp32X02TgvTcpZZEIE5OlLVCdcbiNWJhKrmHF1bW2TTlQ9ULcf_3S7ImJI52oCUHSvsExZ3ioDCiLc0tyFm0n-oS88lrC_gTUKoUNkA" 
+            src="/assets/icon.png" 
             alt="Nearbyshops Logo" 
             width={48}
             height={48}
