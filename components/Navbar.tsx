@@ -17,7 +17,7 @@ const NavbarContent = () => {
       <Container className="flex justify-between items-center h-20">
         <Link href="/" className="text-2xl font-black text-primary-container tracking-tighter flex items-center">
           <Image 
-            src="/assets/icon.png" 
+            src="/assets/ad-icon.png" 
             alt="Nearbyshops Logo" 
             width={48}
             height={48}

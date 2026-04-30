@@ -16,7 +16,7 @@ const FooterContent = () => {
         <div className="flex flex-col gap-2">
           <Link href="/" className="text-xl font-bold text-slate-900 flex items-center">
             <Image 
-              src="/assets/icon.png"
+              src="/assets/ad-icon.png"
               alt="Nearbyshops Logo"
               width={40}
               height={40}
