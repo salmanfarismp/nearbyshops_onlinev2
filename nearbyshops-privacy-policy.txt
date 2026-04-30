@@ -1,0 +1,52 @@
+PRIVACY POLICY
+Last Updated: April 30, 2026
+
+1. INTRODUCTION
+Welcome to Nearbyshops. This Privacy Policy explains how Web by Muse ("we," "us," or "our") collects, uses, and protects information when you use the Nearbyshops mobile application. 
+
+Our mission is to support local communities in India by connecting shoppers with nearby vendors. We are committed to a "human-centric" approach, which means we collect the absolute minimum amount of data required to provide our service.
+
+2. INFORMATION WE COLLECT
+
+A. FOR USERS (SHOPPERS)
+We believe in total anonymity for our users. 
+- No Personal Accounts: We do not collect your name, phone number, or email address.
+- Device Identifier: We use a unique, anonymous Device ID to save your "Favorites" and "Ratings." This data is stored on our servers but is never linked to your real-world identity.
+- Location Data: To show you shops in your vicinity, we request access to your location when the app is open.
+    * We DO NOT track your location in the background.
+    * We DO NOT store your location history on our servers; it is kept locally on your device only.
+
+B. FOR VENDORS (SHOP OWNERS)
+To enable customers to find and contact you, we collect:
+- Shop Details: Name, description, category, and images.
+- Contact Information: Mobile number and WhatsApp number.
+- Digital Presence: Instagram ID and other social media handles.
+- Physical Location: The coordinates and address of your shop.
+- Subscription Status: We store your current plan level and expiry date.
+
+3. PAYMENTS & SUBSCRIPTIONS
+Nearbyshops offers tiered subscription plans for vendors. We do not store your financial or card details on our servers.
+- iOS Subscriptions: Processed via Apple In-App Purchases (IAP). Your transaction is subject to Apple's Privacy Policy.
+- Android Subscriptions: Processed via Razorpay. Your data is handled according to Razorpay’s PCI-DSS compliant standards.
+- Pricing: Current tiers are set at ₹240 for 3 months and ₹960 for 1 year (subject to change with notice).
+
+4. THIRD-PARTY SERVICES
+We share data only with service providers essential to the app’s functionality:
+- Supabase: Used for our secure PostgreSQL database storage.
+- Meta / WhatsApp Cloud API: Used for communication and vendor redirects.
+- Redirects: When a user clicks to contact a vendor, they are redirected to WhatsApp. Those conversations are private and governed by WhatsApp’s Privacy Policy.
+- Analytics: We do not use any third-party analytics or tracking cookies.
+
+5. DATA RETENTION & DELETION
+- Users: You can wipe all local data and device-linked favorites at any time by clicking the "Clear All Data" button at the bottom of the Privacy/Settings page in the app.
+- Vendors: If you wish to delete your shop listing or account data, please contact us at the email provided below.
+
+6. COMPLIANCE
+This policy is designed to comply with India’s Digital Personal Data Protection (DPDP) Act and international app store guidelines.
+
+7. CONTACT US
+If you have any questions about this Privacy Policy or our data practices, please contact:
+
+Web by Muse
+Email: hello@nearbyshops.online
+Web: www.nearbyshops.online

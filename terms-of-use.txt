@@ -1,0 +1,31 @@
+Terms of Service for Nearbyshops
+Last Updated: April 30, 2026
+  
+1. Agreement to Terms
+By accessing or using Nearbyshops, you agree to be bound by these Terms. These terms are a legal agreement between you and Web by Muse. If you do not agree, please do not use the application.  
+2. Nature of Service
+Nearbyshops is a platform that connects local shoppers with local vendors.  
+Users: We provide a directory to discover local businesses.  
+Vendors: We provide a listing service to showcase your business to local customers.  
+Transactions: Nearbyshops is not a payment intermediary between shoppers and vendors. All purchases, negotiations, and interactions occur directly between the user and the vendor (typically via WhatsApp). We are not responsible for the quality, safety, or legality of the items advertised.  
+3. Vendor Subscriptions and Payments
+To list a business on Nearbyshops, vendors must choose a subscription tier.  
+Pricing: Current rates are ₹240 for 3 months or ₹960 for 1 year.  
+Payment Processors:
+iOS: Payments are handled exclusively through Apple In-App Purchases.  
+Android: Payments are processed securely via Razorpay.  
+Renewal: Subscriptions may set to auto-renew depending on your platform settings (Apple ID or Google Play). You can manage or cancel your subscription at any time through your device's subscription settings.  
+Refunds: Payments are generally non-refundable once the service period has started, as digital listing space is granted immediately.  
+4. User Conduct and Content
+Accuracy: Vendors are responsible for ensuring their shop details, location, and contact information are accurate and up-to-date.  
+Prohibited Content: You may not post content that is illegal, fraudulent, or harmful. Web by Muse reserves the right to remove any listing that violates community standards.
+Anonymity: Users interact with the app via an anonymous Device ID. You agree not to attempt to circumvent our technical security measures.  
+5. Limitation of Liability
+Web by Muse provides Nearbyshops "as is." While we strive for 100% uptime, we are not liable for any service interruptions or for the accuracy of vendor-provided data. We are not responsible for any disputes that arise between a shopper and a vendor.  
+6. Termination
+We reserve the right to suspend or terminate access to our services for anyone who violates these terms or engages in fraudulent activity.
+7. Contact Us
+For support or questions regarding these terms, please reach out to us:
+Email: hello@nearbyshops.online  
+Entity: Web by Muse
+
