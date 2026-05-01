@@ -9,12 +9,19 @@ export const metadata = {
   description: "Our privacy policy and data handling practices.",
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const resolvedSearchParams = await searchParams;
+  const isAppView = resolvedSearchParams['app_view'] === 'true' || resolvedSearchParams['app-view'] === 'true';
+
   return (
     <>
       <Navbar />
-      <main className="pt-20">
-        <Section className="bg-surface">
+      <main className={isAppView ? "" : "pt-20"}>
+        <Section className={isAppView ? "" : "bg-surface"}>
           <Container className="max-w-3xl">
             <div className="mb-8 md:mb-12">
               <h1 className="font-display-lg text-4xl md:text-display-lg text-on-surface mb-4 md:mb-6">
