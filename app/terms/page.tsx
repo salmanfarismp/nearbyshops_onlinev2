@@ -21,7 +21,7 @@ export default async function TermsPage({
     <>
       <Navbar />
       <main className={isAppView ? "" : "pt-20"}>
-        <Section className={isAppView ? "" : "bg-surface"}>
+        <Section className={isAppView ? "bg-white" : "bg-surface"}>
           <Container className="max-w-3xl">
             <div className="mb-8 md:mb-12">
               <h1 className="font-display-lg text-4xl md:text-display-lg text-on-surface mb-4 md:mb-6">
