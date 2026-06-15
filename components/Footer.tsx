@@ -30,6 +30,7 @@ const FooterContent = () => {
         <div className="flex flex-wrap justify-center gap-8">
           <Link href="/privacy" className="text-slate-500 hover:text-primary-container transition-colors">Privacy Policy</Link>
           <Link href="/terms" className="text-slate-500 hover:text-primary-container transition-colors">Terms of Service</Link>
+          <Link href="/account/delete-account" className="text-slate-500 hover:text-primary-container transition-colors">Delete Account</Link>
           <a className="text-slate-500 hover:text-primary-container transition-colors" href="#">Help Center</a>
           <a className="text-slate-500 hover:text-primary-container transition-colors underline" href="#">Instagram</a>
           <a className="text-slate-500 hover:text-primary-container transition-colors" href="#">Twitter</a>
