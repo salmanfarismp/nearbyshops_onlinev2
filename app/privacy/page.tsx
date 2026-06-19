@@ -12,10 +12,12 @@ export const metadata = {
 export default async function PrivacyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const isAppView = resolvedSearchParams['app_view'] === 'true' || resolvedSearchParams['app-view'] === 'true';
+  const isAppView =
+    resolvedSearchParams["app_view"] === "true" ||
+    resolvedSearchParams["app-view"] === "true";
 
   return (
     <>
@@ -32,7 +34,8 @@ export default async function PrivacyPage({
                   <strong>Last Updated:</strong> April 30, 2026
                 </p>
                 <p>
-                  <strong>Owner:</strong> Web by Muse
+                  <strong>Owner:</strong> Salmanul Faris M P, operating as Web
+                  by Muse
                 </p>
                 <p>
                   <strong>Contact:</strong>{" "}
@@ -53,9 +56,10 @@ export default async function PrivacyPage({
                   1. Introduction
                 </h2>
                 <p className="mb-4">
-                  Welcome to Nearbyshops. This Privacy Policy explains how Web
-                  by Muse ("we," "us," or "our") collects, uses, and protects
-                  information when you use the Nearbyshops mobile application.
+                  Welcome to Nearbyshops. This Privacy Policy explains how
+                  Salmanul Faris M P, operating as Web by Muse ("we," "us," or
+                  "our"), collects, uses, and protects information when you use
+                  the Nearbyshops mobile application.
                 </p>
                 <p>
                   Our mission is to support local communities in India by
@@ -141,24 +145,22 @@ export default async function PrivacyPage({
                   3. Payments & Subscriptions
                 </h2>
                 <p className="mb-3 md:mb-4">
-                  Nearbyshops offers tiered subscription plans for vendors. We
-                  do not store your financial or card details on our servers.
+                  Nearbyshops offers premium tier features for vendors. We do
+                  not process, see, or store your financial or payment card
+                  details on our servers.
                 </p>
                 <ul className="list-disc pl-5 md:pl-6 space-y-2 md:space-y-3">
                   <li>
-                    <strong>iOS Subscriptions:</strong> Processed via Apple
-                    In-App Purchases (IAP). Your transaction is subject to
-                    Apple's Privacy Policy.
+                    <strong>iOS Subscriptions:</strong> Processed securely via
+                    Apple In-App Purchases (IAP). Your transaction details are
+                    subject to Apple's Privacy Policy.
                   </li>
                   <li>
-                    <strong>Android Subscriptions:</strong> Processed via
-                    Razorpay. Your data is handled according to Razorpay's
-                    PCI-DSS compliant standards.
-                  </li>
-                  <li>
-                    <strong>Pricing:</strong> Current tiers are set at ₹240 for
-                    3 months and ₹960 for 1 year (subject to change with
-                    notice).
+                    <strong>Android Subscriptions:</strong> Processed securely
+                    via Google Play Billing. We collect and store minimal
+                    transaction metadata (such as payment success status,
+                    transaction ID, and plan duration) solely to activate and
+                    validate your vendor subscription features.
                   </li>
                 </ul>
               </div>
@@ -170,7 +172,7 @@ export default async function PrivacyPage({
                 </h2>
                 <p className="mb-3 md:mb-4">
                   We share data only with service providers essential to the
-                  app's functionality:
+                  app's core functionality:
                 </p>
                 <ul className="list-disc pl-5 md:pl-6 space-y-2 md:space-y-3">
                   <li>
@@ -182,13 +184,15 @@ export default async function PrivacyPage({
                     communication and vendor redirects.
                   </li>
                   <li>
-                    <strong>Redirects:</strong> When a user clicks to contact a
-                    vendor, they are redirected to WhatsApp. Those conversations
-                    are private and governed by WhatsApp's Privacy Policy.
+                    <strong>Redirects:</strong> When a shopper clicks to contact
+                    a vendor, they are seamlessly redirected to WhatsApp. Those
+                    conversations are fully private and governed entirely by
+                    WhatsApp's Privacy Policy.
                   </li>
                   <li>
-                    <strong>Analytics:</strong> We do not use any third-party
-                    analytics or tracking cookies.
+                    <strong>Analytics:</strong> We value your privacy and do not
+                    use any third-party marketing, behavioral analytics
+                    tracking, or tracking cookies.
                   </li>
                 </ul>
               </div>
@@ -200,15 +204,22 @@ export default async function PrivacyPage({
                 </h2>
                 <ul className="list-disc pl-5 md:pl-6 space-y-2 md:space-y-3">
                   <li>
-                    <strong>Users:</strong> You can wipe all local data and
-                    device-linked favorites at any time by clicking the "Clear
-                    All Data" button at the bottom of the Privacy/Settings page
-                    in the app.
+                    <strong>Users:</strong> Since we do not collect any personal
+                    data or require accounts for shoppers, no account data is
+                    stored on our servers. Your "Favorites" and "Ratings" are
+                    tied anonymously to your device identifier. You can clear
+                    this data at any time simply by uninstalling the application
+                    from your device.
                   </li>
                   <li>
-                    <strong>Vendors:</strong> If you wish to delete your shop
-                    listing or account data, please contact us at the email
-                    provided below.
+                    <strong>Vendors:</strong> You retain full control over your
+                    data. You can permanently delete your shop listing, contact
+                    details, and account data at any time directly within the
+                    app by navigating to
+                    <strong> Settings / Store Information</strong> and selecting
+                    the <strong>"Delete my account"</strong> option. This action
+                    immediately and irreversibly removes your vendor profile
+                    from our active database.
                   </li>
                 </ul>
               </div>
@@ -219,23 +230,82 @@ export default async function PrivacyPage({
                   6. Compliance
                 </h2>
                 <p>
-                  This policy is designed to comply with India's Digital
-                  Personal Data Protection (DPDP) Act and international app
-                  store guidelines.
+                  This policy is built to align with India's Digital Personal
+                  Data Protection (DPDP) Act and international mobile
+                  application store guidelines.
                 </p>
               </div>
 
-              {/* 7. CONTACT US */}
+              {/* 7. RIGHTS OF DATA PRINCIPALS */}
               <div>
                 <h2 className="font-headline-md text-2xl md:text-headline-md text-on-surface mb-3 md:mb-4">
-                  7. Contact Us
+                  7. Rights of Data Principals
                 </h2>
                 <p className="mb-3 md:mb-4">
-                  If you have any questions about this Privacy Policy or our
-                  data practices, please contact:
+                  In compliance with India's DPDP Act, users and vendors
+                  (referred to as Data Principals) hold the following rights:
+                </p>
+                <ul className="list-disc pl-5 md:pl-6 space-y-2 md:space-y-3">
+                  <li>
+                    <strong>Right to Information:</strong> Request a summary of
+                    personal data currently being processed and the processing
+                    activities.
+                  </li>
+                  <li>
+                    <strong>Right to Correction and Erasure:</strong> Correct
+                    inaccuracies or request complete erasure of your personal
+                    data when it is no longer required for the purpose it was
+                    collected.
+                  </li>
+                  <li>
+                    <strong>Right to Withdraw Consent:</strong> You may withdraw
+                    your consent to data collection or processing at any time
+                    simply by uninstalling the application or requesting a
+                    vendor profile deletion.
+                  </li>
+                </ul>
+              </div>
+
+              {/* 8. GRIEVANCE REDRESSAL */}
+              <div>
+                <h2 className="font-headline-md text-2xl md:text-headline-md text-on-surface mb-3 md:mb-4">
+                  8. Grievance Redressal
+                </h2>
+                <p className="mb-3 md:mb-4">
+                  If you have any questions, feedback, or complaints regarding
+                  how your data is handled, you may contact our designated
+                  Grievance Officer:
                 </p>
                 <div className="bg-surface-container rounded-xl p-5 md:p-6 break-words">
-                  <p className="font-bold text-on-surface mb-2">Web by Muse</p>
+                  <p className="font-bold text-on-surface mb-1">
+                    Grievance Officer
+                  </p>
+                  <p className="mb-2 text-on-surface">Salmanul Faris M P</p>
+                  <p>
+                    Email:{" "}
+                    <a
+                      href="mailto:hello@webbymuse.com"
+                      className="text-primary-container hover:underline"
+                    >
+                      hello@webbymuse.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              {/* 9. CONTACT US */}
+              <div>
+                <h2 className="font-headline-md text-2xl md:text-headline-md text-on-surface mb-3 md:mb-4">
+                  9. Contact Us
+                </h2>
+                <p className="mb-3 md:mb-4">
+                  For general privacy inquiries or data requests, please
+                  contact:
+                </p>
+                <div className="bg-surface-container rounded-xl p-5 md:p-6 break-words">
+                  <p className="font-bold text-on-surface mb-2">
+                    Salmanul Faris M P (Web by Muse)
+                  </p>
                   <p>
                     Email:{" "}
                     <a
