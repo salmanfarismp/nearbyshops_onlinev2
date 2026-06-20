@@ -30,7 +30,7 @@ const FooterContent = () => {
         <div className="flex flex-wrap justify-center gap-8">
           <Link href="/privacy" className="text-slate-500 hover:text-primary-container transition-colors">Privacy Policy</Link>
           <Link href="/terms" className="text-slate-500 hover:text-primary-container transition-colors">Terms of Service</Link>
-          {/* <a className="text-slate-500 hover:text-primary-container transition-colors" href="#">Help Center</a> */}
+          <Link href="/support" className="text-slate-500 hover:text-primary-container transition-colors">Support</Link>
           <a className="text-slate-500 hover:text-primary-container transition-colors" target='_blank' href="https://www.instagram.com/nearbyshops.online/">Instagram</a>
         </div>
       </div>
