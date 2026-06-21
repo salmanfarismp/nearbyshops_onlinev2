@@ -207,9 +207,9 @@ export default async function PrivacyPage({
                     <strong>Users:</strong> Since we do not collect any personal
                     data or require accounts for shoppers, no account data is
                     stored on our servers. Your "Favorites" and "Ratings" are
-                    tied anonymously to your device identifier. You can clear
-                    this data at any time simply by uninstalling the application
-                    from your device.
+                    tied anonymously to your device identifier. To clear your
+                    saved items, simply unfavorite the shops and products
+                    directly within the app.
                   </li>
                   <li>
                     <strong>Vendors:</strong> You retain full control over your
