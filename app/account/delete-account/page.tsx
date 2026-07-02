@@ -4,8 +4,8 @@ import { Footer } from "@/components/Footer";
 import { DeleteAccountForm } from "./DeleteAccountForm";
 
 export const metadata = {
-  title: "Delete Account - Nearbyshops",
-  description: "Request permanent deletion of your Nearbyshops vendor account and business data.",
+  title: "Delete Account - Wandershops",
+  description: "Request permanent deletion of your Wandershops vendor account and business data.",
 };
 
 export default async function DeleteAccountPage({

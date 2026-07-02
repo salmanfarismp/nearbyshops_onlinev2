@@ -91,7 +91,7 @@ export const DeleteAccountForm: React.FC<DeleteAccountFormProps> = ({ isAppView 
             Delete Account
           </h1>
           <p className="text-on-surface-variant text-sm md:text-base">
-            Request permanent deletion of your Nearbyshops vendor account and business data.
+            Request permanent deletion of your Wandershops vendor account and business data.
           </p>
         </div>
 

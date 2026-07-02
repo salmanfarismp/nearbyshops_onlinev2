@@ -6,8 +6,8 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 
 export const metadata = {
-  title: "Support & Help Center - Nearbyshops",
-  description: "Get support for Nearbyshops or learn how to upgrade your shop subscription.",
+  title: "Support & Help Center - Wandershops",
+  description: "Get support for Wandershops or learn how to upgrade your shop subscription.",
 };
 
 export default async function SupportPage({
@@ -115,7 +115,7 @@ export default async function SupportPage({
           <Container className="max-w-[800px]">
             <div className="text-center mb-16">
               <h2 className="font-headline-lg text-3xl text-on-surface mb-3 tracking-tight">Frequently Asked Questions</h2>
-              <p className="text-on-surface-variant text-base">Quick answers to common questions about Nearbyshops.</p>
+              <p className="text-on-surface-variant text-base">Quick answers to common questions about Wandershops.</p>
             </div>
 
             <div className="space-y-6">
@@ -125,7 +125,7 @@ export default async function SupportPage({
                   How do I delete my vendor shop listing?
                 </h3>
                 <p className="text-on-surface-variant text-base leading-relaxed pl-8">
-                  Deleting your profile is instant and irreversible. Within the Nearbyshops mobile application, navigate to{" "}
+                  Deleting your profile is instant and irreversible. Within the Wandershops mobile application, navigate to{" "}
                   <strong>Settings</strong> &gt; <strong>Store Information</strong>, and click the{" "}
                   <strong>"Delete my account"</strong> button. This will delete all your shop listings and contact details from our active database.
                 </p>
@@ -139,11 +139,11 @@ export default async function SupportPage({
                 </h3>
                 <div className="text-on-surface-variant text-base leading-relaxed pl-8 space-y-3">
                   <p>
-                    Upgrading your shop subscription can be done directly within the Nearbyshops mobile application by following these steps:
+                    Upgrading your shop subscription can be done directly within the Wandershops mobile application by following these steps:
                   </p>
                   <ol className="list-decimal pl-5 space-y-2 mt-2">
                     <li>
-                      <strong>Go to your profile (App dashboard):</strong> Open the Nearbyshops app and navigate to your Vendor Dashboard or Profile tab.
+                      <strong>Go to your profile (App dashboard):</strong> Open the Wandershops app and navigate to your Vendor Dashboard or Profile tab.
                     </li>
                     <li>
                       <strong>Select 'Subscription' (Settings):</strong> Tap on Subscription Settings or Manage Plan to view your current tier.
@@ -180,12 +180,12 @@ export default async function SupportPage({
               <p>
                 Website:{" "}
                 <a
-                  href="https://www.nearbyshops.online"
+                  href="https://www.wandershops.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary-container hover:underline"
                 >
-                  www.nearbyshops.online
+                  www.wandershops.com
                 </a>
               </p>
             </div>

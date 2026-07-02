@@ -18,12 +18,12 @@ const NavbarContent = () => {
         <Link href="/" className="text-lg sm:text-2xl font-black text-primary-container tracking-tighter flex items-center">
           <Image 
             src="/assets/ad-icon.png" 
-            alt="Nearbyshops Logo" 
+            alt="Wandershops Logo" 
             width={48}
             height={48}
             className="w-auto inline-block mr-0 sm:mr-2 h-10 sm:h-12"
           />
-          <span>Nearbyshops</span>
+          <span>Wandershops</span>
         </Link>
         <div className="flex items-center gap-4">
           <Button variant="primary" size="sm" className="!px-4 sm:!px-6 !py-2 sm:!py-3 text-xs sm:text-sm" href="/#download-app">Get the App</Button>

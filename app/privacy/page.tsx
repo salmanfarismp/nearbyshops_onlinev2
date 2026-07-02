@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 
 export const metadata = {
-  title: "Privacy Policy - Nearbyshops",
+  title: "Privacy Policy - Wandershops",
   description: "Our privacy policy and data handling practices.",
 };
 
@@ -56,10 +56,10 @@ export default async function PrivacyPage({
                   1. Introduction
                 </h2>
                 <p className="mb-4">
-                  Welcome to Nearbyshops. This Privacy Policy explains how
+                  Welcome to Wandershops. This Privacy Policy explains how
                   Salmanul Faris M P, operating as Web by Muse ("we," "us," or
                   "our"), collects, uses, and protects information when you use
-                  the Nearbyshops mobile application.
+                  the Wandershops mobile application.
                 </p>
                 <p>
                   Our mission is to support local communities in India by
@@ -145,7 +145,7 @@ export default async function PrivacyPage({
                   3. Payments & Subscriptions
                 </h2>
                 <p className="mb-3 md:mb-4">
-                  Nearbyshops offers premium tier features for vendors. We do
+                  Wandershops offers premium tier features for vendors. We do
                   not process, see, or store your financial or payment card
                   details on our servers.
                 </p>
@@ -318,12 +318,12 @@ export default async function PrivacyPage({
                   <p>
                     Web:{" "}
                     <a
-                      href="https://www.nearbyshops.online"
+                      href="https://www.wandershops.com"
                       target="_blank"
                       rel="noreferrer"
                       className="text-primary-container hover:underline"
                     >
-                      www.nearbyshops.online
+                      www.wandershops.com
                     </a>
                   </p>
                 </div>

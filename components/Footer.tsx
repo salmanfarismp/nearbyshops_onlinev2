@@ -17,21 +17,21 @@ const FooterContent = () => {
           <Link href="/" className="text-xl font-bold text-slate-900 flex items-center">
             <Image 
               src="/assets/ad-icon.png"
-              alt="Nearbyshops Logo"
+              alt="Wandershops Logo"
               width={40}
               height={40}
               className="w-auto inline-block mr-2 h-10"
             />
-            Nearbyshops
+            Wandershops
           </Link>
-          <p className="text-slate-500">© {new Date().getFullYear()} Nearbyshops. Built with love for the neighborhood.</p>
+          <p className="text-slate-500">© {new Date().getFullYear()} Wandershops. Built with love for the neighborhood.</p>
         </div>
         
         <div className="flex flex-wrap justify-center gap-8">
           <Link href="/privacy" className="text-slate-500 hover:text-primary-container transition-colors">Privacy Policy</Link>
           <Link href="/terms" className="text-slate-500 hover:text-primary-container transition-colors">Terms of Service</Link>
           <Link href="/support" className="text-slate-500 hover:text-primary-container transition-colors">Support</Link>
-          <a className="text-slate-500 hover:text-primary-container transition-colors" target='_blank' href="https://www.instagram.com/nearbyshops.online/">Instagram</a>
+          <a className="text-slate-500 hover:text-primary-container transition-colors" target='_blank' href="https://www.instagram.com/thewandershops/">Instagram</a>
         </div>
       </div>
     </footer>

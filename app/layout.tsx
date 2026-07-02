@@ -18,7 +18,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Nearbyshops",
+  title: "Wandershops",
   description: "Discover the Heart of Your Neighborhood",
 };
 

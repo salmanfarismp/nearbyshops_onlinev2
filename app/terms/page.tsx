@@ -5,8 +5,8 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 
 export const metadata = {
-  title: "Terms of Service - Nearbyshops",
-  description: "Terms of Service and User Agreement for Nearbyshops.",
+  title: "Terms of Service - Wandershops",
+  description: "Terms of Service and User Agreement for Wandershops.",
 };
 
 export default async function TermsPage({
@@ -56,7 +56,7 @@ export default async function TermsPage({
                   1. Agreement to Terms
                 </h2>
                 <p>
-                  By accessing or using Nearbyshops, you agree to be bound by
+                  By accessing or using Wandershops, you agree to be bound by
                   these Terms of Service. These terms constitute a legally
                   binding agreement between you and Salmanul Faris M P, operating
                   as Web by Muse. If you do not agree to these terms, please do
@@ -70,7 +70,7 @@ export default async function TermsPage({
                   2. Nature of Service
                 </h2>
                 <p className="mb-3 md:mb-4">
-                  Nearbyshops acts as a localized marketplace platform and
+                  Wandershops acts as a localized marketplace platform and
                   directory that connects local shoppers with nearby vendors in
                   India.
                 </p>
@@ -86,7 +86,7 @@ export default async function TermsPage({
                     location, and details to nearby customers.
                   </li>
                   <li>
-                    <strong>Transactions:</strong> Nearbyshops is not an
+                    <strong>Transactions:</strong> Wandershops is not an
                     intermediary, agent, or payment processor for the
                     transactions occurring between shoppers and vendors. All
                     business interactions, item negotiations, payments, and
@@ -104,7 +104,7 @@ export default async function TermsPage({
                   3. Vendor Subscriptions and Payments
                 </h2>
                 <p className="mb-3 md:mb-4">
-                  To publish a premium business storefront on Nearbyshops,
+                  To publish a premium business storefront on Wandershops,
                   vendors must enroll in an available subscription plan.
                 </p>
                 <ul className="list-disc pl-5 md:pl-6 space-y-2 md:space-y-3">
@@ -182,7 +182,7 @@ export default async function TermsPage({
                   5. Limitation of Liability
                 </h2>
                 <p>
-                  We provide Nearbyshops strictly on an "as is" and "as
+                  We provide Wandershops strictly on an "as is" and "as
                   available" basis. While we strive to maintain high
                   availability and reliable uptime, we cannot guarantee
                   constant, uninterrupted service or mistake-free database
