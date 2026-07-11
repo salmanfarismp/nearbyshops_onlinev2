@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import ClientRedirect from "./ClientRedirect"; // We will create this below
 
 type Props = {
   searchParams: Promise<{ type?: string; id?: string }>;
@@ -13,21 +13,21 @@ export async function generateMetadata({
 }: Props): Promise<Metadata> {
   const { type, id } = await searchParams;
 
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  // Default values if parameters are missing
+  // Crucial: Use absolute URL for the fallback image
+  const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
   let title = "Discover local stores on Wandershops";
   let description =
     "Find local vendors and amazing products right in your neighborhood.";
-  let imageUrl = "/assets/ad-icon.png";
+  let imageUrl = `${DOMAIN}/assets/ad-icon.png`;
 
   if (type && id) {
     try {
-      // Fetch data directly from your backend/database
+      // Safely initialize Supabase
+      const cookieStore = await cookies();
+      const supabase = createClient(cookieStore);
 
       if (type === "store") {
-        const { data: store, error: storeError } = await supabase
+        const { data: store } = await supabase
           .from("Store")
           .select("name,description,profile_url")
           .eq("slug", id)
@@ -35,30 +35,26 @@ export async function generateMetadata({
 
         if (store) {
           title = `${store.name} | Wandershops`;
-          description = store.description;
+          description = store.description || description;
           imageUrl = store.profile_url || imageUrl;
         }
       }
+
       if (type === "product") {
-        const { data: product, error: productError } = await supabase
+        const { data: product } = await supabase
           .from("Product")
-          .select(
-            `
-          *,
-          images:ProductImage(*)
-        `,
-          )
+          .select(`*, images:ProductImage(*)`)
           .eq("id", id)
           .single();
 
-        const primaryImg =
-          product.images?.find((img: any) => img.is_primary) ||
-          product.images?.[0];
-
         if (product) {
+          const primaryImg =
+            product.images?.find((img: any) => img.is_primary) ||
+            product.images?.[0];
+
           title = `${product.name} | Wandershops`;
-          description = product.description;
-          imageUrl = primaryImg.img_url || imageUrl;
+          description = product.description || description;
+          imageUrl = primaryImg?.img_url || imageUrl;
         }
       }
     } catch (error) {
@@ -78,8 +74,28 @@ export async function generateMetadata({
   };
 }
 
-// 2. THE VISUAL FALLBACK PAGE (If the user doesn't have the app)
-export default async function SharePage({ searchParams }: Props) {
-  // Option A: Instantly auto-redirect them to the Play Store/App Store landing page
-  redirect("/#download-app");
+// 2. THE VISUAL PAGE
+export default async function SharePage() {
+  // Instead of server redirect, we return a simple page with a client-side redirect component.
+  // This allows the HTML (and its metadata tags) to be successfully served to WhatsApp.
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        fontFamily: "sans-serif",
+        textAlign: "center",
+        padding: "20px",
+      }}
+    >
+      <h2>Opening Wandershops...</h2>
+      <p style={{ color: "#666" }}>
+        Redirecting you to our application download page.
+      </p>
+      {/* <ClientRedirect target="/#download-app" /> */}
+    </div>
+  );
 }
