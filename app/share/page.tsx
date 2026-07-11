@@ -95,7 +95,7 @@ export default async function SharePage() {
       <p style={{ color: "#666" }}>
         Redirecting you to our application download page.
       </p>
-      {/* <ClientRedirect target="/#download-app" /> */}
+      <ClientRedirect target="/#download-app" />
     </div>
   );
 }
