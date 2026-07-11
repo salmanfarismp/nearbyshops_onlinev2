@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sallmanfaaris.wandershops",
+      "sha256_cert_fingerprints":
+        ["E8:36:0B:66:63:C6:AB:38:48:B7:DC:44:24:51:3C:67:38:86:15:6C:17:6B:91:DA:A6:3A:FB:F0:89:B7:EA:3D"]
+    }
+  }
+]
