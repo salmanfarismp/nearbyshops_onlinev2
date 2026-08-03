@@ -175,8 +175,7 @@ export default async function SupportPage({
         <section className="bg-white py-12 border-t border-surface-variant/10">
           <Container className="text-center text-on-surface-variant/60 text-sm">
             <div className="max-w-md mx-auto space-y-2">
-              <p className="font-bold text-on-surface-variant/80">Web by Muse</p>
-              <p>Promoter: Salmanul Faris M P</p>
+              <p>Salmanul Faris M P</p>
               <p>
                 Website:{" "}
                 <a

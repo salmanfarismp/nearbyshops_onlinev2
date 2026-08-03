@@ -34,8 +34,7 @@ export default async function TermsPage({
                   <strong>Last Updated:</strong> April 30, 2026
                 </p>
                 <p>
-                  <strong>Entity:</strong> Salmanul Faris M P, operating as Web by
-                  Muse
+                  <strong>Entity:</strong> Salmanul Faris M P
                 </p>
                 <p>
                   <strong>Contact:</strong>{" "}
@@ -58,9 +57,9 @@ export default async function TermsPage({
                 <p>
                   By accessing or using Wandershops, you agree to be bound by
                   these Terms of Service. These terms constitute a legally
-                  binding agreement between you and Salmanul Faris M P, operating
-                  as Web by Muse. If you do not agree to these terms, please do
-                  not install or use the application.
+                  binding agreement between you and Salmanul Faris M P. If you
+                  do not agree to these terms, please do not install or use the
+                  application.
                 </p>
               </div>
 
@@ -227,7 +226,6 @@ export default async function TermsPage({
                   <p className="font-bold text-on-surface mb-1">
                     Salmanul Faris M P
                   </p>
-                  <p className="text-on-surface mb-2">Web by Muse</p>
                   <p>
                     Email:{" "}
                     <a

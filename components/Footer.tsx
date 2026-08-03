@@ -24,7 +24,7 @@ const FooterContent = () => {
             />
             Wandershops
           </Link>
-          <p className="text-slate-500">© {new Date().getFullYear()} Wandershops. Built with love for the neighborhood.</p>
+          <p className="text-slate-500">© {new Date().getFullYear()} Wandershops (by Salmanul Faris M P). Built with love for the neighborhood.</p>
         </div>
         
         <div className="flex flex-wrap justify-center gap-8">

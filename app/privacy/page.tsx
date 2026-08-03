@@ -34,8 +34,7 @@ export default async function PrivacyPage({
                   <strong>Last Updated:</strong> April 30, 2026
                 </p>
                 <p>
-                  <strong>Owner:</strong> Salmanul Faris M P, operating as Web
-                  by Muse
+                  <strong>Owner:</strong> Salmanul Faris M P
                 </p>
                 <p>
                   <strong>Contact:</strong>{" "}
@@ -57,7 +56,7 @@ export default async function PrivacyPage({
                 </h2>
                 <p className="mb-4">
                   Welcome to Wandershops. This Privacy Policy explains how
-                  Salmanul Faris M P, operating as Web by Muse ("we," "us," or
+                  Salmanul Faris M P ("we," "us," or
                   "our"), collects, uses, and protects information when you use
                   the Wandershops mobile application.
                 </p>
@@ -304,7 +303,7 @@ export default async function PrivacyPage({
                 </p>
                 <div className="bg-surface-container rounded-xl p-5 md:p-6 break-words">
                   <p className="font-bold text-on-surface mb-2">
-                    Salmanul Faris M P (Web by Muse)
+                    Salmanul Faris M P
                   </p>
                   <p>
                     Email:{" "}
