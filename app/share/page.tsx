@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import ClientRedirect from "./ClientRedirect"; // We will create this below
+import { getTransformedUrl } from "@/utils/image";
 
 type Props = {
   searchParams: Promise<{ type?: string; id?: string }>;
@@ -36,7 +37,7 @@ export async function generateMetadata({
         if (store) {
           title = `${store.name} | Wandershops`;
           description = store.description || description;
-          imageUrl = store.profile_url || imageUrl;
+          imageUrl = getTransformedUrl(store.profile_url) || imageUrl;
         }
       }
 
@@ -54,7 +55,7 @@ export async function generateMetadata({
 
           title = `${product.name} | Wandershops`;
           description = product.description || description;
-          imageUrl = primaryImg?.img_url || imageUrl;
+          imageUrl = getTransformedUrl(primaryImg?.img_url) || imageUrl;
         }
       }
     } catch (error) {
