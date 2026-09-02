@@ -1,12 +1,14 @@
 import { MetadataRoute } from "next";
 import { createServerClient } from "@supabase/ssr";
 
+export const revalidate = 86400; // Revalidate dynamic sitemap daily
+
 const DOMAIN =
   process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
 /**
  * Dynamic sitemap — queries all active stores, products with public stores,
- * explore locality pages, and essential static routes.
+ * and essential static routes.
  * Submitted to Google Search Console at: wandershops.com/sitemap.xml
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -45,18 +47,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // ── Stores ──
-  const { data: stores } = await supabase
+  const { data: stores, error: storesError } = await supabase
     .from("Store")
-    .select("slug, updated_at")
+    .select("slug, created_at")
     .eq("is_public", true)
     .not("slug", "is", null)
-    .order("updated_at", { ascending: false });
+    .order("created_at", { ascending: false });
+
+  if (storesError) {
+    console.error("Sitemap generation error (Store):", storesError);
+  }
 
   for (const store of stores ?? []) {
     if (store.slug) {
       entries.push({
         url: `${DOMAIN}/web/shop/${store.slug}`,
-        lastModified: store.updated_at ? new Date(store.updated_at) : new Date(),
+        lastModified: store.created_at ? new Date(store.created_at) : new Date(),
         changeFrequency: "weekly",
         priority: 0.8,
       });
@@ -64,18 +70,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // ── Products (Only for public stores to guarantee zero 404 URLs) ──
-  const { data: products } = await supabase
+  const { data: products, error: productsError } = await supabase
     .from("Product")
-    .select("id, updated_at, store:Store!inner(is_public)")
+    .select("id, created_at, store:Store!inner(is_public)")
     .eq("is_active", true)
     .eq("store.is_public", true)
-    .order("updated_at", { ascending: false });
+    .order("created_at", { ascending: false });
+
+  if (productsError) {
+    console.error("Sitemap generation error (Product):", productsError);
+  }
 
   for (const product of products ?? []) {
     entries.push({
       url: `${DOMAIN}/web/product/${product.id}`,
-      lastModified: product.updated_at
-        ? new Date(product.updated_at)
+      lastModified: product.created_at
+        ? new Date(product.created_at)
         : new Date(),
       changeFrequency: "weekly",
       priority: 0.6,
