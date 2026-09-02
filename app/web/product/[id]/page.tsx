@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
@@ -179,10 +180,10 @@ export default async function ProductWebPage({ params }: Props) {
       {/* ── Sticky Header ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100">
         <div className="flex items-center px-4 py-3 gap-3">
-          <a
-            href={store?.slug ? `/web/shop/${store.slug}` : "#"}
+          <Link
+            href={store?.slug ? `/web/shop/${store.slug}` : "/"}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 flex-shrink-0"
-            aria-label="Back"
+            aria-label="Back to shop"
           >
             <span
               className="material-symbols-outlined text-slate-700"
@@ -190,7 +191,7 @@ export default async function ProductWebPage({ params }: Props) {
             >
               arrow_back_ios
             </span>
-          </a>
+          </Link>
           <div className="flex-1" />
           {/* Share placeholder */}
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
@@ -255,8 +256,8 @@ export default async function ProductWebPage({ params }: Props) {
 
         {/* Store card */}
         {store && (
-          <a
-            href={store.slug ? `/web/shop/${store.slug}` : "#"}
+          <Link
+            href={store.slug ? `/web/shop/${store.slug}` : "/"}
             className="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-slate-50 mb-6"
             style={{ textDecoration: "none" }}
           >
@@ -306,7 +307,7 @@ export default async function ProductWebPage({ params }: Props) {
             >
               chevron_right
             </span>
-          </a>
+          </Link>
         )}
       </div>
 
