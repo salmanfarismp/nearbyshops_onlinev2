@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "6XSQ7G5DCJ.com.sallmanfaaris.wandershops",
-        "paths": ["/share*"]
+        "paths": ["/share*", "/web/shop/*", "/web/product/*"]
       }
     ]
   }
