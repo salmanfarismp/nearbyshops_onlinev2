@@ -1,15 +1,20 @@
 # Wandershops
 
-Wandershops is a mobile platform for discovering local shops and their products in your neighborhood.
+> Wandershops connects local vendors and neighborhood shoppers. Customers discover local stores, browse product catalogues with prices, check store hours, and order directly on WhatsApp.
 
-## About
-Wandershops connects customers with nearby stores. Vendors list their products with prices, images, and contact information. Customers can browse, discover, and order via WhatsApp directly from the app or web.
+## Platform Summary
+- **Website**: https://wandershops.com
+- **App Scheme**: wandershops://
+- **Core Entities**: Local Stores (`/web/shop/{slug}`) and Products (`/web/product/{id}`)
+- **Primary Interaction**: Instant direct order and inquiry via WhatsApp
 
-## Store Pages
-/web/shop/{slug} — Individual store page with product listings, opening hours, location, ratings, and WhatsApp contact info.
+## Discovery Taxonomy
+Wandershops indexes neighborhood stores by **Store Category** and **Geographic Place/City**:
+- **Store Categories**: Apparel & Accessories, Home & Hardware, Food & Beverages, Lifestyle & Decor, Electronics & Tech, Automobiles, Wedding & Event rentals, Other.
+- **Location Entity**: Each store is associated with a verified `Place` (locality/town/city), street address, PostGIS coordinates, and Google Maps pin.
 
-## Product Pages
-/web/product/{id} — Individual product page with images, pricing, description, store info, and direct WhatsApp ordering.
-
-## Sitemap
-/sitemap.xml — Full index of all active store and product pages.
+## URL Structure for LLM & Search Agents
+- `/web/shop/{slug}`: Full store profile with structured JSON-LD (LocalBusiness subtypes like `ClothingStore`, `GroceryStore`, etc.), opening hours, geo coordinates, product catalogue, and verified ratings.
+- `/web/product/{id}`: Detailed product page with JSON-LD `Product` schema, real price, availability, store details, and direct WhatsApp order link.
+- `/sitemap.xml`: Complete machine-readable index of all live public stores and products.
+- `/.well-known/apple-app-site-association` & `/.well-known/assetlinks.json`: Mobile deep-link configurations for iOS and Android.

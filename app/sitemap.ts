@@ -23,6 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: stores } = await supabase
     .from("Store")
     .select("slug, updated_at")
+    .eq("is_public", true)
     .not("slug", "is", null)
     .order("updated_at", { ascending: false });
 

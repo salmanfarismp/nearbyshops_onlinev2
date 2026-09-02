@@ -4,12 +4,17 @@ import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
 import { parsePostGisPoint, buildOpeningHours } from "@/utils/geo";
+import {
+  getSchemaBusinessType,
+  buildBreadcrumbsJsonLd,
+  buildFaqJsonLd,
+} from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 
 type Props = { params: Promise<{ slug: string }> };
 
 /* ─────────────────────────────────────────────
-   Dynamic metadata (title, OG, canonical)
+   Dynamic metadata (title, OG, keywords, canonical)
 ───────────────────────────────────────────── */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -18,12 +23,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: shop } = await supabase
     .from("Store")
-    .select("name, description, banner_url")
+    .select(
+      `
+      name,
+      description,
+      banner_url,
+      category:StoreCategory(name),
+      place:Place(name)
+    `,
+    )
     .eq("slug", slug)
+    .eq("is_public", true)
     .single();
 
-  const DOMAIN =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
+  const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
   if (!shop) {
     return { title: "Shop not found | Wandershops" };
@@ -31,14 +44,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const bannerUrl =
     getTransformedUrl(shop.banner_url) || `${DOMAIN}/assets/ad-icon.png`;
-  const title = `${shop.name} | Wandershops`;
+
+  const categoryName = (shop.category as any)?.name;
+  const placeName = (shop.place as any)?.name;
+
+  let title = shop.name;
+  if (categoryName && placeName) {
+    title = `${shop.name} – ${categoryName} in ${placeName} | Wandershops`;
+  } else if (categoryName) {
+    title = `${shop.name} – ${categoryName} | Wandershops`;
+  } else if (placeName) {
+    title = `${shop.name} in ${placeName} | Wandershops`;
+  } else {
+    title = `${shop.name} | Wandershops`;
+  }
+
   const description =
     shop.description ||
-    `Browse products from ${shop.name} on Wandershops — the local shopping app.`;
+    (categoryName && placeName
+      ? `Browse ${categoryName} products from ${shop.name} in ${placeName}. View store hours, contact on WhatsApp, and order directly.`
+      : `Browse products from ${shop.name} on Wandershops — the local shopping app.`);
+
+  const keywords = [
+    shop.name,
+    categoryName,
+    placeName,
+    categoryName && placeName ? `${categoryName} in ${placeName}` : null,
+    placeName ? `shops in ${placeName}` : null,
+    "Wandershops",
+    "local shopping",
+  ].filter(Boolean) as string[];
 
   return {
     title,
     description,
+    keywords,
     alternates: {
       canonical: `${DOMAIN}/web/shop/${slug}`,
     },
@@ -72,6 +112,8 @@ export default async function ShopWebPage({ params }: Props) {
     .select(
       `
       *,
+      category:StoreCategory(id, name),
+      place:Place(id, name, lat, lng),
       permissions:StorePermission(*),
       categories:ProductCategory(
         *,
@@ -82,12 +124,12 @@ export default async function ShopWebPage({ params }: Props) {
     `,
     )
     .eq("slug", slug)
+    .eq("is_public", true)
     .eq("categories.products.is_active", true)
     .eq("categories.total_count.is_active", true)
-    .limit(8, { foreignTable: "categories.products" })
     .single();
 
-  if (error || !shop) notFound();
+  if (error || !shop || shop.is_public === false) notFound();
 
   /* ── Data Processing (mirrors native shop/[id].tsx) ── */
 
@@ -123,9 +165,7 @@ export default async function ShopWebPage({ params }: Props) {
   // Categories
   const mappedCategories = (shop.categories || [])
     .filter((c: any) => c.is_visible)
-    .sort(
-      (a: any, b: any) => (a.display_order || 0) - (b.display_order || 0),
-    )
+    .sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0))
     .map((c: any) => ({
       id: c.id.toString(),
       name: c.name,
@@ -162,6 +202,10 @@ export default async function ShopWebPage({ params }: Props) {
   // Geo
   const geoPoint = parsePostGisPoint(shop.location);
 
+  // Category and place names
+  const categoryName = (shop.category as any)?.name || null;
+  const placeName = (shop.place as any)?.name || null;
+
   // Phone number from permissions
   const phoneNumber =
     phonePerm?.phone_number ||
@@ -169,26 +213,33 @@ export default async function ShopWebPage({ params }: Props) {
     whatsappPerm?.url ||
     null;
 
-  const DOMAIN =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
+  const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
-  /* ── JSON-LD LocalBusiness ── */
+  /* ── Specific Schema.org LocalBusiness ── */
+  const schemaBusinessType = getSchemaBusinessType(categoryName);
+
   const jsonLd: Record<string, any> = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": schemaBusinessType,
     name: shop.name,
     description:
       shop.description ||
-      `Discover ${shop.name} on Wandershops — the local shopping app.`,
+      `Discover ${shop.name}, a verified ${categoryName || "local"} store in ${placeName || "your area"} on Wandershops.`,
     url: `${DOMAIN}/web/shop/${slug}`,
     image: [bannerUrl, logoUrl].filter(Boolean),
     logo: logoUrl || undefined,
   };
 
-  if (shop.address) {
+  if (categoryName) {
+    jsonLd.category = categoryName;
+    jsonLd.department = categoryName;
+  }
+
+  if (shop.address || placeName) {
     jsonLd.address = {
       "@type": "PostalAddress",
-      streetAddress: shop.address,
+      streetAddress: shop.address || undefined,
+      addressLocality: placeName || undefined,
     };
   }
 
@@ -198,7 +249,6 @@ export default async function ShopWebPage({ params }: Props) {
       latitude: geoPoint.lat,
       longitude: geoPoint.lon,
     };
-    // Additional geo meta signals for local search
     jsonLd.hasMap = gmapPerm?.url || undefined;
   }
 
@@ -225,6 +275,45 @@ export default async function ShopWebPage({ params }: Props) {
     jsonLd.openingHoursSpecification = openingHours;
   }
 
+  /* ── BreadcrumbList JSON-LD ── */
+  const breadcrumbItems = [{ name: "Home", url: DOMAIN }];
+  if (placeName) {
+    breadcrumbItems.push({ name: placeName, url: DOMAIN });
+  }
+  if (categoryName) {
+    breadcrumbItems.push({ name: categoryName, url: DOMAIN });
+  }
+  breadcrumbItems.push({ name: shop.name, url: `${DOMAIN}/web/shop/${slug}` });
+
+  const breadcrumbsJsonLd = buildBreadcrumbsJsonLd(breadcrumbItems);
+
+  /* ── AEO FAQPage JSON-LD ── */
+  const faqs = [
+    {
+      question: `What products does ${shop.name} sell?`,
+      answer: `${shop.name} is a verified ${categoryName || "retail"} store located in ${placeName || "the neighborhood"}. Browse their products, prices, and verified reviews on Wandershops.`,
+    },
+    {
+      question: `Where is ${shop.name} located?`,
+      answer: `${shop.name} is located at ${shop.address || "their verified address"}${placeName ? `, ${placeName}` : ""}. Directions are available via Google Maps.`,
+    },
+    {
+      question: `How can I order from ${shop.name}?`,
+      answer: phoneNumber
+        ? `You can browse products on Wandershops and order directly by chatting with ${shop.name} on WhatsApp (${phoneNumber}).`
+        : `You can browse products on Wandershops and order directly through the app.`,
+    },
+  ];
+
+  if (openTimeStr) {
+    faqs.push({
+      question: `What are the opening hours of ${shop.name}?`,
+      answer: `${shop.name} is open from ${openTimeStr}. Current status: ${isOpenToday ? "Open today" : "Closed today"}.`,
+    });
+  }
+
+  const faqJsonLd = buildFaqJsonLd(faqs);
+
   /* ── WhatsApp URL helper ── */
   const whatsappHref = whatsappPerm
     ? `https://wa.me/${String(whatsappPerm.phone_number || whatsappPerm.url || "").replace(/\D/g, "")}`
@@ -232,13 +321,25 @@ export default async function ShopWebPage({ params }: Props) {
 
   return (
     <>
-      {/* JSON-LD structured data */}
+      {/* Specific Schema.org Business JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Geo meta tags for additional local search signals */}
+      {/* BreadcrumbList JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+
+      {/* AEO FAQPage JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+
+      {/* Geo meta tags for local search */}
       {geoPoint && (
         <>
           <meta
@@ -249,7 +350,7 @@ export default async function ShopWebPage({ params }: Props) {
         </>
       )}
 
-      {/* Open-in-App banner (client component, invisible to bots) */}
+      {/* Open-in-App banner */}
       <OpenInAppBanner entityId={shop.id} type="shop" />
 
       {/* ── Sticky Header ── */}
@@ -270,7 +371,6 @@ export default async function ShopWebPage({ params }: Props) {
           <h1 className="flex-1 text-center font-bold text-[#0b1c30] text-lg truncate">
             {shop.name}
           </h1>
-          {/* Share icon (no-op on web, placeholder for visual parity) */}
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
             <span
               className="material-symbols-outlined text-slate-700"
@@ -284,7 +384,6 @@ export default async function ShopWebPage({ params }: Props) {
 
       {/* ── Scrollable content ── */}
       <div className="pb-8">
-
         {/* Hero Banner */}
         <div className="w-full h-[200px] relative overflow-hidden bg-slate-200">
           {bannerUrl ? (
@@ -295,7 +394,6 @@ export default async function ShopWebPage({ params }: Props) {
               className="w-full h-full object-cover"
             />
           ) : null}
-          {/* Bottom gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
         </div>
 
@@ -323,8 +421,28 @@ export default async function ShopWebPage({ params }: Props) {
               )}
             </div>
 
-            {/* Name & Rating */}
+            {/* Name, Badges & Rating */}
             <div className="flex-1 pb-1">
+              {/* Category & Location Badges */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                {categoryName && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#974800]/10 text-[#974800]">
+                    {categoryName}
+                  </span>
+                )}
+                {placeName && (
+                  <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: "11px" }}
+                    >
+                      location_on
+                    </span>
+                    {placeName}
+                  </span>
+                )}
+              </div>
+
               <div className="flex items-center gap-1 mb-1">
                 <span style={{ color: "#f59e0b", fontSize: "14px" }}>★</span>
                 <span className="text-xs font-bold text-[#0b1c30]">
@@ -341,7 +459,7 @@ export default async function ShopWebPage({ params }: Props) {
           </div>
 
           {/* Description + Hours */}
-          <div className="mb-6">
+          <div className="mb-4">
             {shop.description ? (
               <p className="text-sm text-slate-500 leading-snug mb-2">
                 {shop.description}
@@ -366,12 +484,24 @@ export default async function ShopWebPage({ params }: Props) {
               </div>
             ) : null}
           </div>
+
+          {/* ── AEO Semantic Quick Facts (High extraction rate for AI Search & Google) ── */}
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600 mb-6 leading-relaxed">
+            <strong className="text-[#0b1c30]">{shop.name}</strong> is a
+            verified {categoryName ? `${categoryName} store` : "local store"}
+            {placeName ? ` in ${placeName}` : ""}. Offers{" "}
+            {mappedCategories.reduce(
+              (acc: number, c: any) => acc + (c.products?.length || 0),
+              0,
+            )}{" "}
+            active products{openTimeStr ? `, open ${openTimeStr}` : ""}. Direct
+            contact and instant ordering available on WhatsApp.
+          </div>
         </div>
 
         {/* ── Action Buttons ── */}
         {(whatsappPerm || phonePerm || instaPerm) && (
           <div className="px-4 mb-8 flex flex-col gap-3">
-            {/* WhatsApp primary */}
             {whatsappHref && (
               <a
                 href={whatsappHref}
@@ -383,7 +513,6 @@ export default async function ShopWebPage({ params }: Props) {
                   boxShadow: "0 4px 12px rgba(37,211,102,0.25)",
                 }}
               >
-                {/* WhatsApp SVG */}
                 <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
@@ -391,7 +520,6 @@ export default async function ShopWebPage({ params }: Props) {
               </a>
             )}
 
-            {/* Secondary row: Call + Instagram */}
             {(phonePerm || instaPerm) && (
               <div className="flex gap-3">
                 {phonePerm?.phone_number && (
@@ -489,7 +617,6 @@ export default async function ShopWebPage({ params }: Props) {
                 Store Reviews
               </h3>
               <div className="flex flex-col items-center gap-6">
-                {/* Average score */}
                 <div className="text-center">
                   <p
                     className="text-[48px] font-black text-[#0b1c30] leading-none"
@@ -511,7 +638,6 @@ export default async function ShopWebPage({ params }: Props) {
                     {reviewCount} verified reviews
                   </p>
                 </div>
-                {/* Distribution bars */}
                 <div className="w-full space-y-2">
                   {distribution.map((item) => (
                     <div key={item.stars} className="flex items-center gap-2">
@@ -552,7 +678,6 @@ export default async function ShopWebPage({ params }: Props) {
               rel="noopener noreferrer"
               className="block relative h-40 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100"
             >
-              {/* Map placeholder background */}
               <div
                 className="w-full h-full"
                 style={{
@@ -560,8 +685,6 @@ export default async function ShopWebPage({ params }: Props) {
                     "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%)",
                 }}
               />
-
-              {/* Centre pin */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div
                   className="p-2 rounded-full shadow-md"
@@ -576,7 +699,6 @@ export default async function ShopWebPage({ params }: Props) {
                 </div>
               </div>
 
-              {/* Address info box */}
               {shop.address && (
                 <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-sm p-3 rounded-xl flex items-center justify-between shadow-sm">
                   <div className="flex-1 pr-3 min-w-0">

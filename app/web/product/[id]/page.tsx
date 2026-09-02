@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
+import { getSchemaBusinessType, buildBreadcrumbsJsonLd } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
 
@@ -19,14 +20,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: product } = await supabase
     .from("Product")
-    .select("name, description, images:ProductImage(*), store:Store(name)")
+    .select(
+      `
+      name,
+      description,
+      is_active,
+      images:ProductImage(*),
+      category:ProductCategory(name),
+      store:Store(
+        name,
+        slug,
+        is_public,
+        category:StoreCategory(name),
+        place:Place(name)
+      )
+    `,
+    )
     .eq("id", id)
     .single();
 
   const DOMAIN =
     process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
-  if (!product) return { title: "Product not found | Wandershops" };
+  if (
+    !product ||
+    (product as any).is_active === false ||
+    (product.store as any)?.is_public === false
+  ) {
+    return { title: "Product not found | Wandershops" };
+  }
 
   const primaryImg =
     (product.images as any[])?.find((img) => img.is_primary) ||
@@ -34,14 +56,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const imageUrl =
     getTransformedUrl(primaryImg?.img_url) || `${DOMAIN}/assets/ad-icon.png`;
 
-  const title = `${product.name} | Wandershops`;
+  const storeName = (product.store as any)?.name;
+  const placeName = (product.store as any)?.place?.name;
+  const storeCategory = (product.store as any)?.category?.name;
+  const productCategory = (product.category as any)?.name;
+
+  let title = `${product.name} | Wandershops`;
+  if (storeName && placeName) {
+    title = `${product.name} – ${storeName}, ${placeName} | Wandershops`;
+  } else if (storeName) {
+    title = `${product.name} at ${storeName} | Wandershops`;
+  }
+
   const description =
     product.description ||
-    `View ${product.name} from ${(product.store as any)?.name} on Wandershops.`;
+    (storeName && placeName
+      ? `Buy ${product.name} from ${storeName} (${storeCategory || "Local store"}) in ${placeName}. View price, details, and order directly on WhatsApp via Wandershops.`
+      : `View ${product.name} on Wandershops — your local shopping platform.`);
+
+  const keywords = [
+    product.name,
+    storeName,
+    productCategory,
+    storeCategory,
+    placeName,
+    placeName ? `buy ${product.name} in ${placeName}` : null,
+    storeName && placeName ? `${storeName} ${placeName}` : null,
+    "Wandershops",
+  ].filter(Boolean) as string[];
 
   return {
     title,
     description,
+    keywords,
     alternates: { canonical: `${DOMAIN}/web/product/${id}` },
     openGraph: {
       title,
@@ -73,15 +120,28 @@ export default async function ProductWebPage({ params }: Props) {
     .select(
       `
       *,
+      category:ProductCategory(id, name),
       images:ProductImage(*),
       ratings:Rating(score),
-      store:Store(*, permissions:StorePermission(*))
+      store:Store(
+        *,
+        category:StoreCategory(id, name),
+        place:Place(id, name),
+        permissions:StorePermission(*)
+      )
     `,
     )
     .eq("id", id)
     .single();
 
-  if (error || !product) notFound();
+  if (
+    error ||
+    !product ||
+    product.is_active === false ||
+    (product.store as any)?.is_public === false
+  ) {
+    notFound();
+  }
 
   /* ── Data Processing (mirrors native product/[id].tsx) ── */
 
@@ -103,7 +163,7 @@ export default async function ProductWebPage({ params }: Props) {
         ) / reviewCount
       : 0;
 
-  // Store permissions
+  // Store permissions & details
   const store = product.store as any;
   const getPermission = (type: string) =>
     store?.permissions?.find(
@@ -116,6 +176,9 @@ export default async function ProductWebPage({ params }: Props) {
   ).replace(/\D/g, "");
 
   const storeLogo = getTransformedUrl(store?.profile_url);
+  const storeCategoryName = store?.category?.name || null;
+  const placeName = store?.place?.name || null;
+  const productCategoryName = (product.category as any)?.name || null;
 
   const DOMAIN =
     process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
@@ -142,6 +205,10 @@ export default async function ProductWebPage({ params }: Props) {
     url: `${DOMAIN}/web/product/${id}`,
   };
 
+  if (productCategoryName) {
+    jsonLd.category = productCategoryName;
+  }
+
   if (store?.name) {
     jsonLd.brand = { "@type": "Brand", name: store.name };
   }
@@ -153,6 +220,18 @@ export default async function ProductWebPage({ params }: Props) {
       priceCurrency: "INR",
       availability: "https://schema.org/InStock",
       url: `${DOMAIN}/web/product/${id}`,
+      seller: {
+        "@type": getSchemaBusinessType(storeCategoryName),
+        name: store?.name,
+        address:
+          store?.address || placeName
+            ? {
+                "@type": "PostalAddress",
+                streetAddress: store?.address || undefined,
+                addressLocality: placeName || undefined,
+              }
+            : undefined,
+      },
     };
   }
 
@@ -166,12 +245,42 @@ export default async function ProductWebPage({ params }: Props) {
     };
   }
 
+  /* ── BreadcrumbList JSON-LD ── */
+  const breadcrumbItems = [{ name: "Home", url: DOMAIN }];
+  if (placeName) {
+    breadcrumbItems.push({ name: placeName, url: DOMAIN });
+  }
+  if (store?.name && store?.slug) {
+    breadcrumbItems.push({
+      name: store.name,
+      url: `${DOMAIN}/web/shop/${store.slug}`,
+    });
+  }
+  if (productCategoryName && store?.slug) {
+    breadcrumbItems.push({
+      name: productCategoryName,
+      url: `${DOMAIN}/web/shop/${store.slug}`,
+    });
+  }
+  breadcrumbItems.push({
+    name: product.name,
+    url: `${DOMAIN}/web/product/${id}`,
+  });
+
+  const breadcrumbsJsonLd = buildBreadcrumbsJsonLd(breadcrumbItems);
+
   return (
     <>
-      {/* JSON-LD */}
+      {/* Product JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* Breadcrumbs JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
       />
 
       {/* Open-in-App banner */}
@@ -193,7 +302,6 @@ export default async function ProductWebPage({ params }: Props) {
             </span>
           </Link>
           <div className="flex-1" />
-          {/* Share placeholder */}
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
             <span
               className="material-symbols-outlined text-slate-700"
@@ -205,7 +313,7 @@ export default async function ProductWebPage({ params }: Props) {
         </div>
       </header>
 
-      {/* ── Hero Carousel (Client Component for interaction) ── */}
+      {/* ── Hero Carousel ── */}
       <ProductCarousel images={imageUrls} productName={product.name} />
 
       {/* ── Content Sheet (overlaps carousel) ── */}
@@ -213,6 +321,31 @@ export default async function ProductWebPage({ params }: Props) {
         className="relative -mt-10 rounded-t-[32px] bg-white px-6 pt-4 pb-32 z-10"
         style={{ boxShadow: "0 -4px 20px rgba(0,0,0,0.05)" }}
       >
+        {/* Category & Place Badges */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+          {productCategoryName && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#974800]/10 text-[#974800]">
+              {productCategoryName}
+            </span>
+          )}
+          {storeCategoryName && !productCategoryName && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#974800]/10 text-[#974800]">
+              {storeCategoryName}
+            </span>
+          )}
+          {placeName && (
+            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "11px" }}
+              >
+                location_on
+              </span>
+              {placeName}
+            </span>
+          )}
+        </div>
+
         {/* Product name + price */}
         <div className="flex justify-between items-start gap-4 mb-2">
           <h1 className="flex-1 text-[28px] font-extrabold text-[#0b1c30] leading-tight">
@@ -286,7 +419,7 @@ export default async function ProductWebPage({ params }: Props) {
               <p className="text-base font-bold text-[#0b1c30] truncate">
                 {store.name}
               </p>
-              {store.address ? (
+              {(store.address || placeName) && (
                 <div className="flex items-center gap-1 mt-0.5">
                   <span
                     className="material-symbols-outlined text-slate-500"
@@ -295,10 +428,10 @@ export default async function ProductWebPage({ params }: Props) {
                     location_on
                   </span>
                   <p className="text-xs text-slate-500 truncate">
-                    {store.address}
+                    {store.address || placeName}
                   </p>
                 </div>
-              ) : null}
+              )}
             </div>
 
             <span
@@ -314,7 +447,6 @@ export default async function ProductWebPage({ params }: Props) {
       {/* ── Fixed Bottom WhatsApp CTA ── */}
       {whatsappHref && (
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] px-6 pb-8 pt-4 z-50 pointer-events-none">
-          {/* Gradient fade */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
