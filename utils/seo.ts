@@ -108,3 +108,69 @@ export function buildFaqJsonLd(faqs: { question: string; answer: string }[]) {
     })),
   };
 }
+
+/**
+ * Sanitizes a price string (stripping currency symbols, units, commas) into
+ * a valid numeric value required by Google Rich Results / Schema.org Offer.
+ */
+export function cleanPrice(price: string | number | null | undefined): number | undefined {
+  if (price === null || price === undefined) return undefined;
+  if (typeof price === "number") return isNaN(price) ? undefined : price;
+
+  const sanitized = price.replace(/[^0-9.]/g, "");
+  const num = parseFloat(sanitized);
+  return isNaN(num) ? undefined : num;
+}
+
+/**
+ * Builds Organization JSON-LD for Google Knowledge Graph brand recognition.
+ */
+export function buildOrganizationJsonLd(domain: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Wandershops",
+    url: domain,
+    logo: `${domain}/assets/ad-icon.png`,
+    description:
+      "Wandershops connects neighborhood shoppers with verified local businesses, offering WhatsApp ordering and verified store catalogues.",
+    sameAs: [
+      "https://apps.apple.com/in/app/wandershops/id6786978367",
+      "https://play.google.com/store/apps/details?id=com.sallmanfaaris.wandershops",
+    ],
+  };
+}
+
+/**
+ * Builds WebSite JSON-LD schema for search engine identification.
+ */
+export function buildWebSiteJsonLd(domain: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Wandershops",
+    url: domain,
+  };
+}
+
+/**
+ * Builds ItemList JSON-LD schema for directory lists (e.g., shops in a location).
+ */
+export function buildItemListJsonLd(
+  name: string,
+  items: { name: string; url: string; description?: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+      description: item.description,
+    })),
+  };
+}
+

@@ -17,9 +17,50 @@ const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
 });
 
+const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
+
 export const metadata: Metadata = {
-  title: "Wandershops",
-  description: "Discover the Heart of Your Neighborhood",
+  metadataBase: new URL(DOMAIN),
+  title: {
+    default: "Wandershops – Discover Neighborhood Stores & Local Shopping",
+    template: "%s | Wandershops",
+  },
+  description:
+    "Discover local shops, neighborhood boutiques, groceries, and services in your area. Browse live product catalogues with prices and order instantly on WhatsApp.",
+  keywords: [
+    "local shopping",
+    "neighborhood stores",
+    "nearby shops",
+    "order on whatsapp",
+    "local boutiques",
+    "Wandershops",
+  ],
+  alternates: {
+    canonical: DOMAIN,
+  },
+  openGraph: {
+    title: "Wandershops – Discover Neighborhood Stores & Local Shopping",
+    description:
+      "Discover local shops, neighborhood boutiques, groceries, and services in your area. Browse live product catalogues and order on WhatsApp.",
+    url: DOMAIN,
+    siteName: "Wandershops",
+    images: [
+      {
+        url: `${DOMAIN}/assets/ad-icon.png`,
+        width: 1200,
+        height: 630,
+        alt: "Wandershops",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wandershops – Discover Neighborhood Stores & Local Shopping",
+    description:
+      "Discover local shops, neighborhood boutiques, groceries, and services in your area.",
+    images: [`${DOMAIN}/assets/ad-icon.png`],
+  },
 };
 
 export default function RootLayout({

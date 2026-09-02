@@ -15,6 +15,7 @@ Wandershops indexes neighborhood stores by **Store Category** and **Geographic P
 
 ## URL Structure for LLM & Search Agents
 - `/web/shop/{slug}`: Full store profile with structured JSON-LD (LocalBusiness subtypes like `ClothingStore`, `GroceryStore`, etc.), opening hours, geo coordinates, product catalogue, and verified ratings.
-- `/web/product/{id}`: Detailed product page with JSON-LD `Product` schema, real price, availability, store details, and direct WhatsApp order link.
-- `/sitemap.xml`: Complete machine-readable index of all live public stores and products.
+- `/web/product/{id}`: Detailed product page with JSON-LD `Product` schema, sanitized numeric price, availability, seller details, and direct WhatsApp order link.
+- `/sitemap.xml`: Complete machine-readable index of all live public stores, products, and legal/support pages.
 - `/.well-known/apple-app-site-association` & `/.well-known/assetlinks.json`: Mobile deep-link configurations for iOS and Android.
+

@@ -228,6 +228,9 @@ export default async function ShopWebPage({ params }: Props) {
     url: `${DOMAIN}/web/shop/${slug}`,
     image: [bannerUrl, logoUrl].filter(Boolean),
     logo: logoUrl || undefined,
+    priceRange: "₹₹",
+    currenciesAccepted: "INR",
+    paymentAccepted: "Cash, UPI",
   };
 
   if (categoryName) {
@@ -276,14 +279,10 @@ export default async function ShopWebPage({ params }: Props) {
   }
 
   /* ── BreadcrumbList JSON-LD ── */
-  const breadcrumbItems = [{ name: "Home", url: DOMAIN }];
-  if (placeName) {
-    breadcrumbItems.push({ name: placeName, url: DOMAIN });
-  }
-  if (categoryName) {
-    breadcrumbItems.push({ name: categoryName, url: DOMAIN });
-  }
-  breadcrumbItems.push({ name: shop.name, url: `${DOMAIN}/web/shop/${slug}` });
+  const breadcrumbItems = [
+    { name: "Home", url: DOMAIN },
+    { name: shop.name, url: `${DOMAIN}/web/shop/${slug}` },
+  ];
 
   const breadcrumbsJsonLd = buildBreadcrumbsJsonLd(breadcrumbItems);
 

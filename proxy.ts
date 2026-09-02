@@ -1,34 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Known search engine / social scraper bots that MUST see the page
- * for SEO and social sharing previews to work.
+ * Proxy middleware for /web/:path*
+ *
+ * Serves web pages to all visitors (mobile, desktop, search bots, AI agents).
+ * Desktop view is cleanly centered inside WebLayout, avoiding Google "Sneaky Redirect"
+ * cloaking penalties and ensuring AI crawlers (GPTBot, PerplexityBot, etc.) can index content.
  */
-const BOT_PATTERN =
-  /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|applebot|embedly|outbrain|quora|pinterest|sogou|exabot|ia_archiver|semrushbot|ahrefs|mj12bot|rogerbot/i;
-
-/**
- * Mobile device User-Agent patterns.
- */
-const MOBILE_PATTERN = /mobile|android|iphone|ipad|ipod|blackberry|windows phone/i;
-
-export function proxy(request: NextRequest) {
-  const ua = request.headers.get("user-agent") ?? "";
-
-  const isBot = BOT_PATTERN.test(ua);
-  const isMobile = MOBILE_PATTERN.test(ua);
-
-  // Bots and mobile users see the page as-is
-  if (isBot || isMobile) {
-    return NextResponse.next();
-  }
-
-  // Desktop: redirect to the marketing landing page
-  const url = request.nextUrl.clone();
-  url.pathname = "/";
-  return NextResponse.redirect(url, { status: 302 });
+export function proxy(_request: NextRequest) {
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: ["/web/:path*"],
 };
+

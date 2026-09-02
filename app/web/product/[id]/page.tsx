@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
-import { getSchemaBusinessType, buildBreadcrumbsJsonLd } from "@/utils/seo";
+import { getSchemaBusinessType, buildBreadcrumbsJsonLd, cleanPrice } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
 
@@ -213,11 +213,18 @@ export default async function ProductWebPage({ params }: Props) {
     jsonLd.brand = { "@type": "Brand", name: store.name };
   }
 
-  if (product.price) {
+  const numericPrice = cleanPrice(product.price);
+  if (numericPrice !== undefined) {
+    const priceValidUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
+
     jsonLd.offers = {
       "@type": "Offer",
-      price: product.price,
+      price: numericPrice,
       priceCurrency: "INR",
+      priceValidUntil,
+      itemCondition: "https://schema.org/NewCondition",
       availability: "https://schema.org/InStock",
       url: `${DOMAIN}/web/product/${id}`,
       seller: {
@@ -247,18 +254,9 @@ export default async function ProductWebPage({ params }: Props) {
 
   /* ── BreadcrumbList JSON-LD ── */
   const breadcrumbItems = [{ name: "Home", url: DOMAIN }];
-  if (placeName) {
-    breadcrumbItems.push({ name: placeName, url: DOMAIN });
-  }
   if (store?.name && store?.slug) {
     breadcrumbItems.push({
       name: store.name,
-      url: `${DOMAIN}/web/shop/${store.slug}`,
-    });
-  }
-  if (productCategoryName && store?.slug) {
-    breadcrumbItems.push({
-      name: productCategoryName,
       url: `${DOMAIN}/web/shop/${store.slug}`,
     });
   }

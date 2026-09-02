@@ -5,9 +5,9 @@ const DOMAIN =
   process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
 /**
- * Dynamic sitemap — queries all active stores (with slugs) and
- * all active products. Submitted to Google Search Console at:
- *   wandershops.com/sitemap.xml
+ * Dynamic sitemap — queries all active stores, products with public stores,
+ * explore locality pages, and essential static routes.
+ * Submitted to Google Search Console at: wandershops.com/sitemap.xml
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Use a cookie-less service-role client (no auth needed — read-only public data)
@@ -17,7 +17,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { cookies: { getAll: () => [], setAll: () => {} } },
   );
 
-  const entries: MetadataRoute.Sitemap = [];
+  const entries: MetadataRoute.Sitemap = [
+    {
+      url: DOMAIN,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: `${DOMAIN}/support`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${DOMAIN}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${DOMAIN}/terms`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+  ];
 
   // ── Stores ──
   const { data: stores } = await supabase
@@ -38,11 +63,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // ── Products ──
+  // ── Products (Only for public stores to guarantee zero 404 URLs) ──
   const { data: products } = await supabase
     .from("Product")
-    .select("id, updated_at")
+    .select("id, updated_at, store:Store!inner(is_public)")
     .eq("is_active", true)
+    .eq("store.is_public", true)
     .order("updated_at", { ascending: false });
 
   for (const product of products ?? []) {
@@ -58,3 +84,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return entries;
 }
+
