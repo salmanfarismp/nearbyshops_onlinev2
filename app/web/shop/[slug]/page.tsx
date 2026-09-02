@@ -423,7 +423,7 @@ export default async function ShopWebPage({ params }: Props) {
             {/* Name, Badges & Rating */}
             <div className="flex-1 pb-1">
               {/* Category & Location Badges */}
-              <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+              {/* <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 {categoryName && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#974800]/10 text-[#974800]">
                     {categoryName}
@@ -440,7 +440,7 @@ export default async function ShopWebPage({ params }: Props) {
                     {placeName}
                   </span>
                 )}
-              </div>
+              </div> */}
 
               <div className="flex items-center gap-1 mb-1">
                 <span style={{ color: "#f59e0b", fontSize: "14px" }}>★</span>
@@ -485,7 +485,7 @@ export default async function ShopWebPage({ params }: Props) {
           </div>
 
           {/* ── AEO Semantic Quick Facts (High extraction rate for AI Search & Google) ── */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600 mb-6 leading-relaxed">
+          {/* <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600 mb-6 leading-relaxed">
             <strong className="text-[#0b1c30]">{shop.name}</strong> is a
             verified {categoryName ? `${categoryName} store` : "local store"}
             {placeName ? ` in ${placeName}` : ""}. Offers{" "}
@@ -495,7 +495,7 @@ export default async function ShopWebPage({ params }: Props) {
             )}{" "}
             active products{openTimeStr ? `, open ${openTimeStr}` : ""}. Direct
             contact and instant ordering available on WhatsApp.
-          </div>
+          </div> */}
         </div>
 
         {/* ── Action Buttons ── */}
