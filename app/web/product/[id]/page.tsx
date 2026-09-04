@@ -11,6 +11,7 @@ import {
 } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
+import ShareLink from "@/components/ui/ShareLink";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -183,9 +184,9 @@ export default async function ProductWebPage({ params }: Props) {
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
-  const shareUrl = `${DOMAIN}/web/product/${id}`;
+  const WhatsappShareUrl = `${DOMAIN}/web/product/${id}`;
   const whatsappMessage = encodeURIComponent(
-    `Hi, I found this product on Wandershops: ${shareUrl}`,
+    `Hi, I found this product on Wandershops: ${WhatsappShareUrl}`,
   );
   const whatsappHref = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
@@ -267,6 +268,8 @@ export default async function ProductWebPage({ params }: Props) {
 
   const breadcrumbsJsonLd = buildBreadcrumbsJsonLd(breadcrumbItems);
 
+  const shareUrl = `/share?id=${id}&type=product`;
+
   return (
     <>
       {/* Product JSON-LD */}
@@ -301,14 +304,14 @@ export default async function ProductWebPage({ params }: Props) {
           </Link>
           <div className="flex-1" />
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-            <Link href={`web/product/${id}`}>
+            <ShareLink href={shareUrl}>
               <span
                 className="material-symbols-outlined text-slate-700"
                 style={{ fontSize: "20px" }}
               >
                 share
               </span>
-            </Link>
+            </ShareLink>
           </div>
         </div>
       </header>

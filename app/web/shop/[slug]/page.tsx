@@ -11,6 +11,7 @@ import {
 } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import Link from "next/link";
+import ShareLink from "@/components/ui/ShareLink";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -319,6 +320,8 @@ export default async function ShopWebPage({ params }: Props) {
     ? `https://wa.me/${String(whatsappPerm.phone_number || whatsappPerm.url || "").replace(/\D/g, "")}`
     : null;
 
+  const shareUrl = `/share?id=${slug}&type=shop`;
+
   return (
     <>
       {/* Specific Schema.org Business JSON-LD */}
@@ -372,14 +375,14 @@ export default async function ShopWebPage({ params }: Props) {
             {shop.name}
           </h1>
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-            <Link href={`/web/shop/${slug}`}>
+            <ShareLink href={shareUrl}>
               <span
                 className="material-symbols-outlined text-slate-700"
                 style={{ fontSize: "20px" }}
               >
                 share
               </span>
-            </Link>
+            </ShareLink>
           </div>
         </div>
       </header>
