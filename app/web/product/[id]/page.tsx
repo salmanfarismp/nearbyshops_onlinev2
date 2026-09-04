@@ -4,7 +4,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
-import { getSchemaBusinessType, buildBreadcrumbsJsonLd, cleanPrice } from "@/utils/seo";
+import {
+  getSchemaBusinessType,
+  buildBreadcrumbsJsonLd,
+  cleanPrice,
+} from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
 
@@ -39,8 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq("id", id)
     .single();
 
-  const DOMAIN =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
+  const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
   if (
     !product ||
@@ -166,9 +169,7 @@ export default async function ProductWebPage({ params }: Props) {
   // Store permissions & details
   const store = product.store as any;
   const getPermission = (type: string) =>
-    store?.permissions?.find(
-      (p: any) => p.service_type === type && p.show,
-    );
+    store?.permissions?.find((p: any) => p.service_type === type && p.show);
 
   const whatsappPerm = getPermission("whatsapp");
   const whatsappNumber = String(
@@ -180,8 +181,7 @@ export default async function ProductWebPage({ params }: Props) {
   const placeName = store?.place?.name || null;
   const productCategoryName = (product.category as any)?.name || null;
 
-  const DOMAIN =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
+  const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
   const shareUrl = `${DOMAIN}/web/product/${id}`;
   const whatsappMessage = encodeURIComponent(
@@ -301,12 +301,14 @@ export default async function ProductWebPage({ params }: Props) {
           </Link>
           <div className="flex-1" />
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-            <span
-              className="material-symbols-outlined text-slate-700"
-              style={{ fontSize: "20px" }}
-            >
-              share
-            </span>
+            <Link href={`web/product/${id}`}>
+              <span
+                className="material-symbols-outlined text-slate-700"
+                style={{ fontSize: "20px" }}
+              >
+                share
+              </span>
+            </Link>
           </div>
         </div>
       </header>

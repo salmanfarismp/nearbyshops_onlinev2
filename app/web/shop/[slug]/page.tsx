@@ -10,6 +10,7 @@ import {
   buildFaqJsonLd,
 } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
+import Link from "next/link";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -355,7 +356,7 @@ export default async function ShopWebPage({ params }: Props) {
       {/* ── Sticky Header ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100">
         <div className="flex items-center px-4 py-3 gap-3">
-          <a
+          <Link
             href="/"
             className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 flex-shrink-0"
             aria-label="Back"
@@ -366,17 +367,19 @@ export default async function ShopWebPage({ params }: Props) {
             >
               arrow_back_ios
             </span>
-          </a>
+          </Link>
           <h1 className="flex-1 text-center font-bold text-[#0b1c30] text-lg truncate">
             {shop.name}
           </h1>
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-            <span
-              className="material-symbols-outlined text-slate-700"
-              style={{ fontSize: "20px" }}
-            >
-              share
-            </span>
+            <Link href={`/web/shop/${slug}`}>
+              <span
+                className="material-symbols-outlined text-slate-700"
+                style={{ fontSize: "20px" }}
+              >
+                share
+              </span>
+            </Link>
           </div>
         </div>
       </header>
