@@ -75,10 +75,14 @@ export async function generateMetadata({
   };
 }
 
+
+
 // 2. THE VISUAL PAGE
-export default async function SharePage() {
+export default async function SharePage({ searchParams }: Props) {
+    const { type, id } = await searchParams;
   // Instead of server redirect, we return a simple page with a client-side redirect component.
   // This allows the HTML (and its metadata tags) to be successfully served to WhatsApp.
+  const targetUrl = `/web/${type}/${id}`
   return (
     <div
       style={{
@@ -96,7 +100,7 @@ export default async function SharePage() {
       <p style={{ color: "#666" }}>
         Redirecting you to our application download page.
       </p>
-      <ClientRedirect target="/#download-app" />
+      <ClientRedirect target={targetUrl} />
     </div>
   );
 }
