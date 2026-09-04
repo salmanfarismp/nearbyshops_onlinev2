@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
@@ -16,14 +17,13 @@ import ShareLink from "@/components/ui/ShareLink";
 type Props = { params: Promise<{ slug: string }> };
 
 /* ─────────────────────────────────────────────
-   Dynamic metadata (title, OG, keywords, canonical)
+   Memoized data fetcher — React deduplicates this so generateMetadata
+   and the page body both call it without triggering two Supabase round-trips.
 ───────────────────────────────────────────── */
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+const getShopForMetadata = cache(async (slug: string) => {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
-
-  const { data: shop } = await supabase
+  const { data } = await supabase
     .from("Store")
     .select(
       `
@@ -37,6 +37,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq("slug", slug)
     .eq("is_public", true)
     .single();
+  return data;
+});
+
+const getShop = cache(async (slug: string) => {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const { data, error } = await supabase
+    .from("Store")
+    .select(
+      `
+      *,
+      category:StoreCategory(id, name),
+      place:Place(id, name, lat, lng),
+      permissions:StorePermission(*),
+      categories:ProductCategory(
+        *,
+        products:Product(*, images:ProductImage(*)),
+        total_count:Product(count)
+      ),
+      ratings:Rating(score)
+    `,
+    )
+    .eq("slug", slug)
+    .eq("is_public", true)
+    .eq("categories.products.is_active", true)
+    .eq("categories.total_count.is_active", true)
+    .single();
+  return { data, error };
+});
+
+/* ─────────────────────────────────────────────
+   Dynamic metadata (title, OG, keywords, canonical)
+───────────────────────────────────────────── */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const shop = await getShopForMetadata(slug);
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
@@ -106,30 +142,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 ───────────────────────────────────────────── */
 export default async function ShopWebPage({ params }: Props) {
   const { slug } = await params;
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: shop, error } = await supabase
-    .from("Store")
-    .select(
-      `
-      *,
-      category:StoreCategory(id, name),
-      place:Place(id, name, lat, lng),
-      permissions:StorePermission(*),
-      categories:ProductCategory(
-        *,
-        products:Product(*, images:ProductImage(*)),
-        total_count:Product(count)
-      ),
-      ratings:Rating(score)
-    `,
-    )
-    .eq("slug", slug)
-    .eq("is_public", true)
-    .eq("categories.products.is_active", true)
-    .eq("categories.total_count.is_active", true)
-    .single();
+  const { data: shop, error } = await getShop(slug);
 
   if (error || !shop || shop.is_public === false) notFound();
 
@@ -389,6 +402,65 @@ export default async function ShopWebPage({ params }: Props) {
 
       {/* ── Scrollable content ── */}
       <div className="pb-8">
+        {/* ── SEO: Visually-hidden semantic block ──────────────────────────────
+            Invisible to users (CSS sr-only clip), but fully indexed by
+            Googlebot as body text. Provides the contextual content that
+            Google needs to rank a local business page against directories.
+            Do NOT use display:none or visibility:hidden — those are ignored
+            by crawlers. The clip technique is the standard sr-only approach.
+        ─────────────────────────────────────────────────────────────────── */}
+        <section
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            padding: 0,
+            margin: "-1px",
+            overflow: "hidden",
+            clip: "rect(0,0,0,0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+        >
+          <h2>
+            {shop.name}
+            {categoryName ? ` – ${categoryName} Store` : ""}
+            {placeName ? ` in ${placeName}` : ""}
+          </h2>
+          <p>
+            {shop.name} is a verified{" "}
+            {categoryName ? `${categoryName} store` : "local store"}
+            {placeName ? ` located in ${placeName}` : ""}.
+            {shop.address ? ` Address: ${shop.address}.` : ""}
+            {openTimeStr
+              ? ` Open ${openTimeStr}${isOpenToday ? " – open today" : " – closed today"}.`
+              : ""}
+            {mappedCategories.length > 0
+              ? ` Browse ${
+                  mappedCategories.reduce(
+                    (acc: number, c: any) => acc + c.products.length,
+                    0,
+                  )
+                } products across ${mappedCategories.length} categories.`
+              : ""}{" "}
+            Order directly on WhatsApp or contact the store through Wandershops.
+          </p>
+          {mappedCategories.length > 0 && (
+            <ul>
+              {mappedCategories.map((c: any) => (
+                <li key={c.id}>
+                  {c.name} ({c.products.length}{" "}
+                  {c.products.length === 1 ? "item" : "items"})
+                </li>
+              ))}
+            </ul>
+          )}
+          {phoneNumber && (
+            <p>Contact {shop.name} by phone or WhatsApp: {String(phoneNumber)}.</p>
+          )}
+        </section>
+
         {/* Hero Banner */}
         <div className="w-full h-[200px] relative overflow-hidden bg-slate-200">
           {bannerUrl ? (
