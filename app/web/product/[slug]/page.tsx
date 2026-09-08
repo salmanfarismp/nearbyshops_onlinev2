@@ -13,7 +13,6 @@ import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
 import WebHeader from "@/components/web/WebHeader";
 import StoreCardMini from "@/components/web/StoreCardMini";
-import { calculateRatings } from "@/utils/ratings";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -30,7 +29,6 @@ const getProduct = cache(async (slugOrId: string) => {
     *,
     category:ProductCategory(id, name),
     images:ProductImage(*),
-    ratings:Rating(score),
     store:Store(
       *,
       category:StoreCategory(id, name),
@@ -166,8 +164,9 @@ export default async function ProductWebPage({ params }: Props) {
     .map((img: any) => getTransformedUrl(img.img_url))
     .filter(Boolean);
 
-  // Ratings
-  const { reviewCount, averageRating } = calculateRatings(product.ratings);
+  // Ratings (precomputed on Product table)
+  const reviewCount = Number((product as any).computed_review_count ?? 0);
+  const averageRating = Number((product as any).computed_avg_rating ?? 0);
 
   // Store permissions & details
   const store = product.store as any;

@@ -48,6 +48,16 @@ export interface RatingScore {
   score: number;
 }
 
+export interface RatingDistributionData {
+  '1': number;
+  '2': number;
+  '3': number;
+  '4': number;
+  '5': number;
+  total: number;
+  average: number;
+}
+
 export interface StoreEntity {
   id: string | number;
   slug?: string | null;
@@ -61,6 +71,9 @@ export interface StoreEntity {
   opening_time?: string | null;
   closing_time?: string | null;
   is_public?: boolean;
+  computed_avg_rating?: number | null;
+  computed_review_count?: number | null;
+  rating_distribution?: RatingDistributionData | null;
   category?: StoreCategory | null;
   place?: Place | null;
   permissions?: StorePermission[];
@@ -75,6 +88,8 @@ export interface ProductEntity {
   description?: string | null;
   price?: string | number | null;
   is_active?: boolean;
+  computed_avg_rating?: number | null;
+  computed_review_count?: number | null;
   category?: { id?: string | number; name: string } | null;
   images?: ProductImage[];
   ratings?: RatingScore[];

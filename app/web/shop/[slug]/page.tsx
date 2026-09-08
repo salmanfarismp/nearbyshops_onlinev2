@@ -13,7 +13,7 @@ import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import WebHeader from "@/components/web/WebHeader";
 import RatingSummary from "@/components/web/RatingSummary";
 import DownloadAppBanner from "@/components/web/DownloadAppBanner";
-import { calculateRatings } from "@/utils/ratings";
+import { formatRatingDistribution } from "@/utils/ratings";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -38,7 +38,7 @@ const getShop = cache(async (slugOrId: string) => {
       products:Product(*, images:ProductImage(*)),
       total_count:Product(count)
     ),
-    ratings:Rating(score)
+    rating_distribution
   `;
 
   // First attempt: lookup by slug
@@ -156,9 +156,20 @@ export default async function ShopWebPage({ params }: Props) {
 
   /* ── Data Processing (mirrors native shop/[id].tsx) ── */
 
-  // Ratings
-  const { reviewCount, averageRating, distribution } = calculateRatings(
-    shop.ratings,
+  // Ratings (precomputed on Store table & computed column rating_distribution)
+  const reviewCount = Number(
+    (shop as any).computed_review_count ??
+      (shop as any).rating_distribution?.total ??
+      0,
+  );
+  const averageRating = Number(
+    (shop as any).computed_avg_rating ??
+      (shop as any).rating_distribution?.average ??
+      0,
+  );
+  const distribution = formatRatingDistribution(
+    (shop as any).rating_distribution,
+    reviewCount,
   );
 
   // Permissions
