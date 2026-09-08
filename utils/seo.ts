@@ -123,6 +123,15 @@ export function cleanPrice(price: string | number | null | undefined): number | 
 }
 
 /**
+ * Generates an ISO date string for Schema.org Offer priceValidUntil.
+ */
+export function getPriceValidUntil(days = 90): string {
+  const d = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+  return d.toISOString().split("T")[0];
+}
+
+
+/**
  * Builds Organization JSON-LD for Google Knowledge Graph brand recognition.
  */
 export function buildOrganizationJsonLd(domain: string) {

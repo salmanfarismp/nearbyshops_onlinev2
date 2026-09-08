@@ -1,50 +1,71 @@
-import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound, permanentRedirect } from "next/navigation";
+import { cache } from "react";
 import type { Metadata } from "next";
-import { createClient } from "@/utils/supabase/server";
+import { createPublicClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
 import {
   getSchemaBusinessType,
   buildBreadcrumbsJsonLd,
   cleanPrice,
+  getPriceValidUntil,
 } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
-import ShareLink from "@/components/ui/ShareLink";
+import WebHeader from "@/components/web/WebHeader";
+import StoreCardMini from "@/components/web/StoreCardMini";
+import { calculateRatings } from "@/utils/ratings";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export const revalidate = 300;
+
+/* ─────────────────────────────────────────────
+   Single memoized data fetcher — React deduplicates this across
+   generateMetadata and the page body so only one Supabase round-trip occurs.
+   Supports both slug and id lookup fallback to prevent 404s.
+───────────────────────────────────────────── */
+const getProduct = cache(async (slugOrId: string) => {
+  const supabase = createPublicClient();
+  const selectQuery = `
+    *,
+    category:ProductCategory(id, name),
+    images:ProductImage(*),
+    ratings:Rating(score),
+    store:Store(
+      *,
+      category:StoreCategory(id, name),
+      place:Place(id, name),
+      permissions:StorePermission(*)
+    )
+  `;
+
+  // First attempt: lookup by slug
+  const { data: productBySlug, error: slugError } = await supabase
+    .from("Product")
+    .select(selectQuery)
+    .eq("slug", slugOrId)
+    .maybeSingle();
+
+  if (productBySlug) {
+    return { data: productBySlug, error: null };
+  }
+
+  // Fallback: lookup by id (e.g. legacy links or sitemap)
+  const { data: productById, error: idError } = await supabase
+    .from("Product")
+    .select(selectQuery)
+    .eq("id", slugOrId)
+    .maybeSingle();
+
+  return { data: productById, error: idError || slugError };
+});
 
 /* ─────────────────────────────────────────────
    Dynamic metadata
 ───────────────────────────────────────────── */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: product } = await supabase
-    .from("Product")
-    .select(
-      `
-      id,
-      slug,
-      name,
-      description,
-      is_active,
-      images:ProductImage(*),
-      category:ProductCategory(name),
-      store:Store(
-        name,
-        slug,
-        is_public,
-        category:StoreCategory(name),
-        place:Place(name)
-      )
-    `,
-    )
-    .eq("slug", slug)
-    .single();
+  const { data: product } = await getProduct(slug);
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
@@ -66,6 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const placeName = (product.store as any)?.place?.name;
   const storeCategory = (product.store as any)?.category?.name;
   const productCategory = (product.category as any)?.name;
+  const productSlugOrId = product.slug || product.id;
 
   let title = `${product.name} | Wandershops`;
   if (storeName && placeName) {
@@ -95,11 +117,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords,
-    alternates: { canonical: `${DOMAIN}/web/product/${product.slug}` },
+    alternates: { canonical: `${DOMAIN}/web/product/${productSlugOrId}` },
     openGraph: {
       title,
       description,
-      url: `${DOMAIN}/web/product/${product.slug}`,
+      url: `${DOMAIN}/web/product/${productSlugOrId}`,
       siteName: "Wandershops",
       images: [{ url: imageUrl, width: 1200, height: 1200, alt: product.name }],
       type: "website",
@@ -118,27 +140,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 ───────────────────────────────────────────── */
 export default async function ProductWebPage({ params }: Props) {
   const { slug } = await params;
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: product, error } = await supabase
-    .from("Product")
-    .select(
-      `
-      *,
-      category:ProductCategory(id, name),
-      images:ProductImage(*),
-      ratings:Rating(score),
-      store:Store(
-        *,
-        category:StoreCategory(id, name),
-        place:Place(id, name),
-        permissions:StorePermission(*)
-      )
-    `,
-    )
-    .eq("slug", slug)
-    .single();
+  const { data: product, error } = await getProduct(slug);
 
   if (
     error ||
@@ -147,6 +149,11 @@ export default async function ProductWebPage({ params }: Props) {
     (product.store as any)?.is_public === false
   ) {
     notFound();
+  }
+
+  // Consolidate SEO authority: redirect ID-based hits to canonical slug
+  if (product.slug && slug !== product.slug) {
+    permanentRedirect(`/web/product/${product.slug}`);
   }
 
   /* ── Data Processing (mirrors native product/[id].tsx) ── */
@@ -160,14 +167,7 @@ export default async function ProductWebPage({ params }: Props) {
     .filter(Boolean);
 
   // Ratings
-  const reviewCount = product.ratings?.length ?? 0;
-  const averageRating =
-    reviewCount > 0
-      ? (product.ratings as any[]).reduce(
-          (sum: number, r: any) => sum + r.score,
-          0,
-        ) / reviewCount
-      : 0;
+  const { reviewCount, averageRating } = calculateRatings(product.ratings);
 
   // Store permissions & details
   const store = product.store as any;
@@ -183,10 +183,11 @@ export default async function ProductWebPage({ params }: Props) {
   const storeCategoryName = store?.category?.name || null;
   const placeName = store?.place?.name || null;
   const productCategoryName = (product.category as any)?.name || null;
+  const productSlugOrId = product.slug || product.id;
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
-  const WhatsappShareUrl = `${DOMAIN}/web/product/${product.slug}`;
+  const WhatsappShareUrl = `${DOMAIN}/web/product/${productSlugOrId}`;
   const whatsappMessage = encodeURIComponent(
     `Hi, I found this product on Wandershops: ${WhatsappShareUrl}`,
   );
@@ -205,7 +206,7 @@ export default async function ProductWebPage({ params }: Props) {
     name: product.name,
     description: product.description || undefined,
     image: imageUrls.length > 0 ? imageUrls : [primaryImageUrl].filter(Boolean),
-    url: `${DOMAIN}/web/product/${product.slug}`,
+    url: `${DOMAIN}/web/product/${productSlugOrId}`,
   };
 
   if (productCategoryName) {
@@ -218,9 +219,7 @@ export default async function ProductWebPage({ params }: Props) {
 
   const numericPrice = cleanPrice(product.price);
   if (numericPrice !== undefined) {
-    const priceValidUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0];
+    const priceValidUntil = getPriceValidUntil(90);
 
     jsonLd.offers = {
       "@type": "Offer",
@@ -228,8 +227,43 @@ export default async function ProductWebPage({ params }: Props) {
       priceCurrency: "INR",
       priceValidUntil,
       itemCondition: "https://schema.org/NewCondition",
-      availability: "https://schema.org/InStock",
-      url: `${DOMAIN}/web/product/${product.slug}`,
+      availability: "https://schema.org/InStoreOnly",
+      availableDeliveryMethod: "https://schema.org/OnSitePickup",
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/InStoreOnly",
+        returnMethod: "https://schema.org/ReturnInStore",
+        returnFees: "https://schema.org/FreeReturn",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 0,
+          currency: "INR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "IN",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 0,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 0,
+            unitCode: "DAY",
+          },
+        },
+      },
+      url: `${DOMAIN}/web/product/${productSlugOrId}`,
       seller: {
         "@type": getSchemaBusinessType(storeCategoryName),
         name: store?.name,
@@ -265,12 +299,12 @@ export default async function ProductWebPage({ params }: Props) {
   }
   breadcrumbItems.push({
     name: product.name,
-    url: `${DOMAIN}/web/product/${product.slug}`,
+    url: `${DOMAIN}/web/product/${productSlugOrId}`,
   });
 
   const breadcrumbsJsonLd = buildBreadcrumbsJsonLd(breadcrumbItems);
 
-  const shareUrl = `/web/product/${product.slug}`;
+  const shareUrl = `/web/product/${productSlugOrId}`;
 
   return (
     <>
@@ -290,33 +324,11 @@ export default async function ProductWebPage({ params }: Props) {
       <OpenInAppBanner entityId={product.id} type="product" />
 
       {/* ── Sticky Header ── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100">
-        <div className="flex items-center px-4 py-3 gap-3">
-          <Link
-            href={store?.slug ? `/web/shop/${store.slug}` : "/"}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 flex-shrink-0"
-            aria-label="Back to shop"
-          >
-            <span
-              className="material-symbols-outlined text-slate-700"
-              style={{ fontSize: "20px" }}
-            >
-              arrow_back_ios
-            </span>
-          </Link>
-          <div className="flex-1" />
-          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-            <ShareLink href={shareUrl}>
-              <span
-                className="material-symbols-outlined text-slate-700"
-                style={{ fontSize: "20px" }}
-              >
-                share
-              </span>
-            </ShareLink>
-          </div>
-        </div>
-      </header>
+      <WebHeader
+        backHref={store?.slug ? `/web/shop/${store.slug}` : "/"}
+        backLabel="Back to shop"
+        shareUrl={shareUrl}
+      />
 
       {/* ── Hero Carousel ── */}
       <ProductCarousel images={imageUrls} productName={product.name} />
@@ -394,58 +406,11 @@ export default async function ProductWebPage({ params }: Props) {
 
         {/* Store card */}
         {store && (
-          <Link
-            href={store.slug ? `/web/shop/${store.slug}` : "/"}
-            className="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-slate-50 mb-6"
-            style={{ textDecoration: "none" }}
-          >
-            {/* Store logo */}
-            <div className="w-14 h-14 rounded-xl overflow-hidden border border-slate-200 bg-white flex-shrink-0">
-              {storeLogo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={storeLogo}
-                  alt={store.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-slate-200" />
-              )}
-            </div>
-
-            {/* Store info */}
-            <div className="flex-1 min-w-0">
-              <p
-                className="text-[10px] font-bold uppercase text-[#974800] mb-0.5"
-                style={{ letterSpacing: "0.5px" }}
-              >
-                Available at
-              </p>
-              <p className="text-base font-bold text-[#0b1c30] truncate">
-                {store.name}
-              </p>
-              {(store.address || placeName) && (
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span
-                    className="material-symbols-outlined text-slate-500"
-                    style={{ fontSize: "14px" }}
-                  >
-                    location_on
-                  </span>
-                  <p className="text-xs text-slate-500 truncate">
-                    {store.address || placeName}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <span
-              className="material-symbols-outlined text-slate-300 flex-shrink-0"
-              style={{ fontSize: "24px" }}
-            >
-              chevron_right
-            </span>
-          </Link>
+          <StoreCardMini
+            store={store}
+            storeLogo={storeLogo}
+            placeName={placeName}
+          />
         )}
       </div>
 

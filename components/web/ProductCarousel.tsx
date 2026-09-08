@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 
 type Props = {
   images: string[];
@@ -43,14 +44,16 @@ export default function ProductCarousel({ images, productName }: Props) {
           displayImages.map((src, i) => (
             <div
               key={i}
-              className="w-full h-full flex-shrink-0"
+              className="w-full h-full flex-shrink-0 relative"
               style={{ scrollSnapAlign: "start" }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={src}
                 alt={`${productName} image ${i + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                priority={i === 0}
+                className="object-cover"
+                sizes="(max-width: 430px) 100vw, 430px"
               />
             </div>
           ))

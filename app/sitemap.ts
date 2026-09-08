@@ -72,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Products (Only for public stores to guarantee zero 404 URLs) ──
   const { data: products, error: productsError } = await supabase
     .from("Product")
-    .select("id, created_at, store:Store!inner(is_public)")
+    .select("id, slug, created_at, store:Store!inner(is_public)")
     .eq("is_active", true)
     .eq("store.is_public", true)
     .order("created_at", { ascending: false });
@@ -83,7 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const product of products ?? []) {
     entries.push({
-      url: `${DOMAIN}/web/product/${product.id}`,
+      url: `${DOMAIN}/web/product/${product.slug || product.id}`,
       lastModified: product.created_at
         ? new Date(product.created_at)
         : new Date(),

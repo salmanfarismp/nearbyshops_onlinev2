@@ -1,8 +1,7 @@
-import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
-import { createClient } from "@/utils/supabase/server";
+import { createPublicClient } from "@/utils/supabase/server";
 import { getTransformedUrl } from "@/utils/image";
 import { parsePostGisPoint, buildOpeningHours } from "@/utils/geo";
 import {
@@ -11,60 +10,62 @@ import {
   buildFaqJsonLd,
 } from "@/utils/seo";
 import OpenInAppBanner from "@/components/web/OpenInAppBanner";
+import WebHeader from "@/components/web/WebHeader";
+import RatingSummary from "@/components/web/RatingSummary";
+import DownloadAppBanner from "@/components/web/DownloadAppBanner";
+import { calculateRatings } from "@/utils/ratings";
 import Link from "next/link";
-import ShareLink from "@/components/ui/ShareLink";
+import Image from "next/image";
 
 type Props = { params: Promise<{ slug: string }> };
 
-/* ─────────────────────────────────────────────
-   Memoized data fetcher — React deduplicates this so generateMetadata
-   and the page body both call it without triggering two Supabase round-trips.
-───────────────────────────────────────────── */
-const getShopForMetadata = cache(async (slug: string) => {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const { data } = await supabase
-    .from("Store")
-    .select(
-      `
-      name,
-      description,
-      profile_url,
-      category:StoreCategory(name),
-      place:Place(name)
-    `,
-    )
-    .eq("slug", slug)
-    .eq("is_public", true)
-    .single();
-  return data;
-});
+export const revalidate = 300;
 
-const getShop = cache(async (slug: string) => {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const { data, error } = await supabase
-    .from("Store")
-    .select(
-      `
+/* ─────────────────────────────────────────────
+   Single memoized data fetcher — React deduplicates this across
+   generateMetadata and the page body so only one Supabase round-trip occurs.
+   Supports both slug and id lookup fallback to prevent 404s.
+───────────────────────────────────────────── */
+const getShop = cache(async (slugOrId: string) => {
+  const supabase = createPublicClient();
+  const selectQuery = `
+    *,
+    category:StoreCategory(id, name),
+    place:Place(id, name, lat, lng),
+    permissions:StorePermission(*),
+    categories:ProductCategory(
       *,
-      category:StoreCategory(id, name),
-      place:Place(id, name, lat, lng),
-      permissions:StorePermission(*),
-      categories:ProductCategory(
-        *,
-        products:Product(*, images:ProductImage(*)),
-        total_count:Product(count)
-      ),
-      ratings:Rating(score)
-    `,
-    )
-    .eq("slug", slug)
+      products:Product(*, images:ProductImage(*)),
+      total_count:Product(count)
+    ),
+    ratings:Rating(score)
+  `;
+
+  // First attempt: lookup by slug
+  const { data: shopBySlug, error: slugError } = await supabase
+    .from("Store")
+    .select(selectQuery)
+    .eq("slug", slugOrId)
     .eq("is_public", true)
     .eq("categories.products.is_active", true)
     .eq("categories.total_count.is_active", true)
-    .single();
-  return { data, error };
+    .maybeSingle();
+
+  if (shopBySlug) {
+    return { data: shopBySlug, error: null };
+  }
+
+  // Fallback: lookup by id (e.g. legacy/app/share links)
+  const { data: shopById, error: idError } = await supabase
+    .from("Store")
+    .select(selectQuery)
+    .eq("id", slugOrId)
+    .eq("is_public", true)
+    .eq("categories.products.is_active", true)
+    .eq("categories.total_count.is_active", true)
+    .maybeSingle();
+
+  return { data: shopById, error: idError || slugError };
 });
 
 /* ─────────────────────────────────────────────
@@ -72,13 +73,15 @@ const getShop = cache(async (slug: string) => {
 ───────────────────────────────────────────── */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const shop = await getShopForMetadata(slug);
+  const { data: shop } = await getShop(slug);
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
   if (!shop) {
     return { title: "Shop not found | Wandershops" };
   }
+
+  const shopSlugOrId = shop.slug || shop.id;
 
   const bannerUrl =
     getTransformedUrl(shop.profile_url) || `${DOMAIN}/assets/ad-icon.png`;
@@ -118,12 +121,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     keywords,
     alternates: {
-      canonical: `${DOMAIN}/web/shop/${slug}`,
+      canonical: `${DOMAIN}/web/shop/${shopSlugOrId}`,
     },
     openGraph: {
       title,
       description,
-      url: `${DOMAIN}/web/shop/${slug}`,
+      url: `${DOMAIN}/web/shop/${shopSlugOrId}`,
       siteName: "Wandershops",
       images: [{ url: bannerUrl, width: 1200, height: 630, alt: shop.name }],
       type: "website",
@@ -146,27 +149,17 @@ export default async function ShopWebPage({ params }: Props) {
 
   if (error || !shop || shop.is_public === false) notFound();
 
+  // Consolidate SEO authority: redirect ID-based hits to canonical slug
+  if (shop.slug && slug !== shop.slug) {
+    permanentRedirect(`/web/shop/${shop.slug}`);
+  }
+
   /* ── Data Processing (mirrors native shop/[id].tsx) ── */
 
   // Ratings
-  const reviewCount = shop.ratings?.length ?? 0;
-  const averageRating =
-    reviewCount > 0
-      ? shop.ratings.reduce((sum: number, r: any) => sum + r.score, 0) /
-        reviewCount
-      : 0;
-
-  const distribution = [5, 4, 3, 2, 1].map((stars) => ({
-    stars,
-    percentage:
-      reviewCount > 0
-        ? Math.round(
-            (shop.ratings.filter((r: any) => r.score === stars).length /
-              reviewCount) *
-              100,
-          )
-        : 0,
-  }));
+  const { reviewCount, averageRating, distribution } = calculateRatings(
+    shop.ratings,
+  );
 
   // Permissions
   const getPermission = (type: string) =>
@@ -190,6 +183,7 @@ export default async function ShopWebPage({ params }: Props) {
           p.images?.find((img: any) => img.is_primary) || p.images?.[0];
         return {
           id: p.id,
+          slug: p.slug,
           name: p.name,
           description: p.description || "",
           price: p.price || "",
@@ -370,35 +364,12 @@ export default async function ShopWebPage({ params }: Props) {
       <OpenInAppBanner entityId={shop.id} type="shop" />
 
       {/* ── Sticky Header ── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100">
-        <div className="flex items-center px-4 py-3 gap-3">
-          <Link
-            href="/"
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 flex-shrink-0"
-            aria-label="Back"
-          >
-            <span
-              className="material-symbols-outlined text-slate-700"
-              style={{ fontSize: "20px" }}
-            >
-              arrow_back_ios
-            </span>
-          </Link>
-          <h1 className="flex-1 text-center font-bold text-[#0b1c30] text-lg truncate">
-            {shop.name}
-          </h1>
-          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-            <ShareLink href={shareUrl}>
-              <span
-                className="material-symbols-outlined text-slate-700"
-                style={{ fontSize: "20px" }}
-              >
-                share
-              </span>
-            </ShareLink>
-          </div>
-        </div>
-      </header>
+      <WebHeader
+        title={shop.name}
+        shareUrl={shareUrl}
+        backHref="/"
+        backLabel="Back"
+      />
 
       {/* ── Scrollable content ── */}
       <div className="pb-8">
@@ -464,11 +435,13 @@ export default async function ShopWebPage({ params }: Props) {
         {/* Hero Banner */}
         <div className="w-full h-[200px] relative overflow-hidden bg-slate-200">
           {bannerUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={bannerUrl}
               alt={`${shop.name} banner`}
-              className="w-full h-full object-cover"
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 430px) 100vw, 430px"
             />
           ) : null}
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
@@ -486,10 +459,11 @@ export default async function ShopWebPage({ params }: Props) {
               }}
             >
               {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={logoUrl}
                   alt={`${shop.name} logo`}
+                  width={96}
+                  height={96}
                   className="w-24 h-24 rounded-2xl object-cover border-2 border-white"
                   style={{ backgroundColor: "#E6A55B" }}
                 />
@@ -642,18 +616,19 @@ export default async function ShopWebPage({ params }: Props) {
             </h3>
             <div className="grid grid-cols-2 gap-4">
               {category.products.map((product: any) => (
-                <a
+                <Link
                   key={product.id}
-                  href={`/web/product/${product.id}`}
+                  href={`/web/product/${product.slug || product.id}`}
                   className="block group"
                 >
-                  <div className="aspect-square rounded-2xl overflow-hidden bg-slate-100 mb-2">
+                  <div className="aspect-square rounded-2xl overflow-hidden bg-slate-100 mb-2 relative">
                     {product.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-200"
+                        sizes="(max-width: 430px) 50vw, 200px"
                       />
                     ) : (
                       <div className="w-full h-full bg-slate-200" />
@@ -672,7 +647,7 @@ export default async function ShopWebPage({ params }: Props) {
                       {product.price}
                     </p>
                   ) : null}
-                </a>
+                </Link>
               ))}
             </div>
             {(category.total_count ?? 0) > 8 && (
@@ -687,59 +662,11 @@ export default async function ShopWebPage({ params }: Props) {
         ))}
 
         {/* ── Reviews Section (read-only on web) ── */}
-        {reviewCount > 0 && (
-          <div className="px-4 my-6">
-            <div className="bg-slate-50 rounded-3xl p-6">
-              <h3 className="text-lg font-bold text-[#0b1c30] mb-5">
-                Store Reviews
-              </h3>
-              <div className="flex flex-col items-center gap-6">
-                <div className="text-center">
-                  <p
-                    className="text-[48px] font-black text-[#0b1c30] leading-none"
-                    style={{ letterSpacing: "-1.5px" }}
-                  >
-                    {averageRating.toFixed(1)}
-                  </p>
-                  <div className="flex justify-center gap-0.5 mt-1 mb-1.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        style={{ color: "#f59e0b", fontSize: "16px" }}
-                      >
-                        {star <= Math.floor(averageRating) ? "★" : "☆"}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-slate-500 font-medium">
-                    {reviewCount} verified reviews
-                  </p>
-                </div>
-                <div className="w-full space-y-2">
-                  {distribution.map((item) => (
-                    <div key={item.stars} className="flex items-center gap-2">
-                      <span className="w-5 text-center text-xs font-bold text-slate-500">
-                        {item.stars}
-                      </span>
-                      <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${item.percentage}%`,
-                            backgroundColor: "#974800",
-                          }}
-                        />
-                      </div>
-                      <span className="w-8 text-right text-[10px] font-bold text-slate-500">
-                        {item.percentage}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <RatingSummary
+          averageRating={averageRating}
+          reviewCount={reviewCount}
+          distribution={distribution}
+        />
 
         {/* ── Location Section ── */}
         {gmapPerm && (
@@ -802,57 +729,7 @@ export default async function ShopWebPage({ params }: Props) {
         )}
 
         {/* ── Download App Banner ── */}
-        <div className="px-4 pb-8">
-          <div
-            className="rounded-2xl p-4 flex items-center gap-4"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(151,72,0,0.06), rgba(236,120,19,0.06))",
-              border: "1px solid rgba(151,72,0,0.12)",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/ad-icon.png"
-              alt="Wandershops app"
-              className="w-12 h-12 rounded-xl flex-shrink-0"
-            />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-[#0b1c30]">
-                Get the Full Experience
-              </p>
-              <p className="text-xs text-slate-500">
-                Discover more shops on Wandershops
-              </p>
-            </div>
-            <div className="flex flex-col gap-1.5 flex-shrink-0">
-              <a
-                href={
-                  process.env.NEXT_PUBLIC_APP_STORE_URL ||
-                  "https://apps.apple.com/in/app/wandershops/id6786978367"
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-bold px-3 py-1.5 rounded-full text-white text-center"
-                style={{ backgroundColor: "#0b1c30" }}
-              >
-                App Store
-              </a>
-              <a
-                href={
-                  process.env.NEXT_PUBLIC_PLAY_STORE_URL ||
-                  "https://play.google.com/store/apps/details?id=com.sallmanfaaris.wandershops"
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-bold px-3 py-1.5 rounded-full text-white text-center"
-                style={{ backgroundColor: "#0b1c30" }}
-              >
-                Play Store
-              </a>
-            </div>
-          </div>
-        </div>
+        <DownloadAppBanner />
       </div>
     </>
   );

@@ -63,11 +63,20 @@ export async function GET(request: NextRequest) {
   if (id && (type === "product" || type === "store" || type === "shop")) {
     try {
       if (isProduct) {
-        const { data: product } = await publicSupabase
+        let { data: product } = await publicSupabase
           .from("Product")
           .select("name, description, images:ProductImage(img_url, is_primary)")
-          .eq("id", id)
+          .eq("slug", id)
           .maybeSingle();
+
+        if (!product) {
+          const { data: productById } = await publicSupabase
+            .from("Product")
+            .select("name, description, images:ProductImage(img_url, is_primary)")
+            .eq("id", id)
+            .maybeSingle();
+          product = productById;
+        }
 
         if (product) {
           const images =
@@ -81,11 +90,20 @@ export async function GET(request: NextRequest) {
           imageUrl = getTransformedUrl(primaryImg?.img_url) || imageUrl;
         }
       } else {
-        const { data: store } = await publicSupabase
+        let { data: store } = await publicSupabase
           .from("Store")
           .select("name, description, profile_url")
           .eq("slug", id)
           .maybeSingle();
+
+        if (!store) {
+          const { data: storeById } = await publicSupabase
+            .from("Store")
+            .select("name, description, profile_url")
+            .eq("id", id)
+            .maybeSingle();
+          store = storeById;
+        }
 
         if (store) {
           title = `${store.name} | Wandershops`;

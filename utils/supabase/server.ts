@@ -26,3 +26,18 @@ export const createClient = (cookieStore: Awaited<ReturnType<typeof cookies>>) =
     },
   );
 };
+
+export const createPublicClient = () => {
+  return createServerClient(
+    supabaseUrl!,
+    supabaseKey!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {},
+      },
+    },
+  );
+};
