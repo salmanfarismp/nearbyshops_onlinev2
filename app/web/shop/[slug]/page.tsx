@@ -29,7 +29,7 @@ const getShopForMetadata = cache(async (slug: string) => {
       `
       name,
       description,
-      banner_url,
+      profile_url,
       category:StoreCategory(name),
       place:Place(name)
     `,
@@ -81,7 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const bannerUrl =
-    getTransformedUrl(shop.banner_url) || `${DOMAIN}/assets/ad-icon.png`;
+    getTransformedUrl(shop.profile_url) || `${DOMAIN}/assets/ad-icon.png`;
 
   const categoryName = (shop.category as any)?.name;
   const placeName = (shop.place as any)?.name;
@@ -333,7 +333,7 @@ export default async function ShopWebPage({ params }: Props) {
     ? `https://wa.me/${String(whatsappPerm.phone_number || whatsappPerm.url || "").replace(/\D/g, "")}`
     : null;
 
-  const shareUrl = `/share?id=${slug}&type=shop`;
+  const shareUrl = `/web/shop/${slug}`;
 
   return (
     <>
@@ -437,12 +437,10 @@ export default async function ShopWebPage({ params }: Props) {
               ? ` Open ${openTimeStr}${isOpenToday ? " – open today" : " – closed today"}.`
               : ""}
             {mappedCategories.length > 0
-              ? ` Browse ${
-                  mappedCategories.reduce(
-                    (acc: number, c: any) => acc + c.products.length,
-                    0,
-                  )
-                } products across ${mappedCategories.length} categories.`
+              ? ` Browse ${mappedCategories.reduce(
+                  (acc: number, c: any) => acc + c.products.length,
+                  0,
+                )} products across ${mappedCategories.length} categories.`
               : ""}{" "}
             Order directly on WhatsApp or contact the store through Wandershops.
           </p>
@@ -457,7 +455,9 @@ export default async function ShopWebPage({ params }: Props) {
             </ul>
           )}
           {phoneNumber && (
-            <p>Contact {shop.name} by phone or WhatsApp: {String(phoneNumber)}.</p>
+            <p>
+              Contact {shop.name} by phone or WhatsApp: {String(phoneNumber)}.
+            </p>
           )}
         </section>
 

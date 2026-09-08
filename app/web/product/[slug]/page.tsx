@@ -13,13 +13,13 @@ import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
 import ShareLink from "@/components/ui/ShareLink";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 /* ─────────────────────────────────────────────
    Dynamic metadata
 ───────────────────────────────────────────── */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -27,6 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from("Product")
     .select(
       `
+      id,
+      slug,
       name,
       description,
       is_active,
@@ -41,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       )
     `,
     )
-    .eq("id", id)
+    .eq("slug", slug)
     .single();
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
@@ -93,11 +95,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords,
-    alternates: { canonical: `${DOMAIN}/web/product/${id}` },
+    alternates: { canonical: `${DOMAIN}/web/product/${product.slug}` },
     openGraph: {
       title,
       description,
-      url: `${DOMAIN}/web/product/${id}`,
+      url: `${DOMAIN}/web/product/${product.slug}`,
       siteName: "Wandershops",
       images: [{ url: imageUrl, width: 1200, height: 1200, alt: product.name }],
       type: "website",
@@ -115,7 +117,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
    Page (Server Component)
 ───────────────────────────────────────────── */
 export default async function ProductWebPage({ params }: Props) {
-  const { id } = await params;
+  const { slug } = await params;
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -135,7 +137,7 @@ export default async function ProductWebPage({ params }: Props) {
       )
     `,
     )
-    .eq("id", id)
+    .eq("slug", slug)
     .single();
 
   if (
@@ -184,7 +186,7 @@ export default async function ProductWebPage({ params }: Props) {
 
   const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://wandershops.com";
 
-  const WhatsappShareUrl = `${DOMAIN}/web/product/${id}`;
+  const WhatsappShareUrl = `${DOMAIN}/web/product/${product.slug}`;
   const whatsappMessage = encodeURIComponent(
     `Hi, I found this product on Wandershops: ${WhatsappShareUrl}`,
   );
@@ -203,7 +205,7 @@ export default async function ProductWebPage({ params }: Props) {
     name: product.name,
     description: product.description || undefined,
     image: imageUrls.length > 0 ? imageUrls : [primaryImageUrl].filter(Boolean),
-    url: `${DOMAIN}/web/product/${id}`,
+    url: `${DOMAIN}/web/product/${product.slug}`,
   };
 
   if (productCategoryName) {
@@ -227,7 +229,7 @@ export default async function ProductWebPage({ params }: Props) {
       priceValidUntil,
       itemCondition: "https://schema.org/NewCondition",
       availability: "https://schema.org/InStock",
-      url: `${DOMAIN}/web/product/${id}`,
+      url: `${DOMAIN}/web/product/${product.slug}`,
       seller: {
         "@type": getSchemaBusinessType(storeCategoryName),
         name: store?.name,
@@ -263,12 +265,12 @@ export default async function ProductWebPage({ params }: Props) {
   }
   breadcrumbItems.push({
     name: product.name,
-    url: `${DOMAIN}/web/product/${id}`,
+    url: `${DOMAIN}/web/product/${product.slug}`,
   });
 
   const breadcrumbsJsonLd = buildBreadcrumbsJsonLd(breadcrumbItems);
 
-  const shareUrl = `/share?id=${id}&type=product`;
+  const shareUrl = `/web/product/${product.slug}`;
 
   return (
     <>
@@ -285,7 +287,7 @@ export default async function ProductWebPage({ params }: Props) {
       />
 
       {/* Open-in-App banner */}
-      <OpenInAppBanner entityId={id} type="product" />
+      <OpenInAppBanner entityId={product.id} type="product" />
 
       {/* ── Sticky Header ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100">
