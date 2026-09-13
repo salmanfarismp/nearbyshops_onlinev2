@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconStoreOff } from "@/components/web/icons";
 
 export default function ShopNotFound() {
   return (
@@ -7,12 +8,7 @@ export default function ShopNotFound() {
         className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
         style={{ backgroundColor: "rgba(151,72,0,0.1)" }}
       >
-        <span
-          className="material-symbols-outlined"
-          style={{ fontSize: "32px", color: "#974800" }}
-        >
-          store_off
-        </span>
+        <IconStoreOff size={32} className="text-[#974800]" />
       </div>
       <h1 className="text-2xl font-extrabold text-[#0b1c30] mb-2">
         Shop Not Found

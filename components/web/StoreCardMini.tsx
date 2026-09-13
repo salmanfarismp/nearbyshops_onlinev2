@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { IconLocation, IconChevronRight } from "@/components/web/icons";
 
 type StoreCardMiniProps = {
   store: {
@@ -50,12 +51,7 @@ export default function StoreCardMini({
         </p>
         {(store.address || placeName) && (
           <div className="flex items-center gap-1 mt-0.5">
-            <span
-              className="material-symbols-outlined text-slate-500"
-              style={{ fontSize: "14px" }}
-            >
-              location_on
-            </span>
+            <IconLocation size={14} className="text-slate-500" />
             <p className="text-xs text-slate-500 truncate">
               {store.address || placeName}
             </p>
@@ -63,12 +59,7 @@ export default function StoreCardMini({
         )}
       </div>
 
-      <span
-        className="material-symbols-outlined text-slate-300 flex-shrink-0"
-        style={{ fontSize: "24px" }}
-      >
-        chevron_right
-      </span>
+      <IconChevronRight size={24} className="text-slate-300 flex-shrink-0" />
     </Link>
   );
 }

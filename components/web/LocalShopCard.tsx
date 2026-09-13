@@ -1,6 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getTransformedUrl } from "@/utils/image";
+import {
+  IconStorefront,
+  IconStar,
+  IconChevronRight,
+} from "@/components/web/icons";
 
 export interface LocalShopCardProps {
   id: string | number;
@@ -52,12 +57,7 @@ export default function LocalShopCard({
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 text-amber-700">
-            <span
-              className="material-symbols-outlined text-2xl text-[#ec7813]"
-              style={{ fontSize: "28px" }}
-            >
-              storefront
-            </span>
+            <IconStorefront size={28} className="text-[#ec7813]" />
           </div>
         )}
       </div>
@@ -71,12 +71,7 @@ export default function LocalShopCard({
         {/* Rating & Distance / Locality Row */}
         <div className="flex items-center gap-1.5 mt-1 text-xs">
           <div className="flex items-center gap-0.5 text-amber-500 font-bold">
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
+            <IconStar size={14} />
             <span>{displayRating}</span>
             <span className="text-slate-400 font-normal ml-0.5">
               ({displayReviews})
@@ -97,12 +92,10 @@ export default function LocalShopCard({
       </div>
 
       {/* Chevron Right */}
-      <span
-        className="material-symbols-outlined text-slate-300 group-hover:text-[#ec7813] group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0"
-        style={{ fontSize: "22px" }}
-      >
-        chevron_right
-      </span>
+      <IconChevronRight
+        size={22}
+        className="text-slate-300 group-hover:text-[#ec7813] group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0"
+      />
     </Link>
   );
 }

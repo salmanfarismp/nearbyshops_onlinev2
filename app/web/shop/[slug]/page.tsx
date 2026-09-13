@@ -16,6 +16,13 @@ import DownloadAppBanner from "@/components/web/DownloadAppBanner";
 import { formatRatingDistribution } from "@/utils/ratings";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  IconSchedule,
+  IconPhone,
+  IconCamera,
+  IconLocation,
+  IconDirections,
+} from "@/components/web/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -485,25 +492,6 @@ export default async function ShopWebPage({ params }: Props) {
 
             {/* Name, Badges & Rating */}
             <div className="flex-1 pb-1">
-              {/* Category & Location Badges */}
-              {/* <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-                {categoryName && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#974800]/10 text-[#974800]">
-                    {categoryName}
-                  </span>
-                )}
-                {placeName && (
-                  <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: "11px" }}
-                    >
-                      location_on
-                    </span>
-                    {placeName}
-                  </span>
-                )}
-              </div> */}
 
               <div className="flex items-center gap-1 mb-1">
                 <span style={{ color: "#f59e0b", fontSize: "14px" }}>★</span>
@@ -529,15 +517,12 @@ export default async function ShopWebPage({ params }: Props) {
             ) : null}
             {openTimeStr ? (
               <div className="flex items-center gap-1.5">
-                <span
-                  className="material-symbols-outlined"
+                <IconSchedule
+                  size={18}
                   style={{
-                    fontSize: "18px",
                     color: isOpenToday ? "#974800" : "#ba1a1a",
                   }}
-                >
-                  schedule
-                </span>
+                />
                 <span
                   className={`text-sm font-semibold ${isOpenToday ? "text-[#974800]" : "text-red-600"}`}
                 >
@@ -589,12 +574,7 @@ export default async function ShopWebPage({ params }: Props) {
                     href={`tel:${phonePerm.phone_number}`}
                     className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold"
                   >
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: "20px" }}
-                    >
-                      call
-                    </span>
+                    <IconPhone size={20} />
                     Call Shop
                   </a>
                 )}
@@ -605,12 +585,7 @@ export default async function ShopWebPage({ params }: Props) {
                     rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold"
                   >
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: "20px" }}
-                    >
-                      photo_camera
-                    </span>
+                    <IconCamera size={20} />
                     Instagram
                   </a>
                 )}
@@ -705,12 +680,7 @@ export default async function ShopWebPage({ params }: Props) {
                   className="p-2 rounded-full shadow-md"
                   style={{ backgroundColor: "#974800" }}
                 >
-                  <span
-                    className="material-symbols-outlined text-white"
-                    style={{ fontSize: "20px" }}
-                  >
-                    location_on
-                  </span>
+                  <IconLocation size={20} className="text-white" />
                 </div>
               </div>
 
@@ -727,12 +697,10 @@ export default async function ShopWebPage({ params }: Props) {
                       Get Directions
                     </p>
                   </div>
-                  <span
-                    className="material-symbols-outlined flex-shrink-0"
-                    style={{ fontSize: "24px", color: "#974800" }}
-                  >
-                    directions
-                  </span>
+                  <IconDirections
+                    size={24}
+                    className="flex-shrink-0 text-[#974800]"
+                  />
                 </div>
               )}
             </a>

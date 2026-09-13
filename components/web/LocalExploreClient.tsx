@@ -7,6 +7,12 @@ import LocalShopCard from "./LocalShopCard";
 import LocationNetMesh, { PlaceNode } from "./LocationNetMesh";
 import { parsePostGisPoint } from "@/utils/geo";
 import { toCategorySlug } from "@/utils/categorySlug";
+import {
+  IconTune,
+  IconSearch,
+  IconClose,
+  IconLocation,
+} from "@/components/web/icons";
 
 export interface SerializedStore {
   id: string | number;
@@ -196,23 +202,16 @@ export default function LocalExploreClient({
           }`}
           aria-label="Toggle Category Filters"
         >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontSize: "20px" }}
-          >
-            tune
-          </span>
+          <IconTune size={20} />
         </button>
       </div>
 
       {/* ── Search Bar ── */}
       <div className="relative mb-4">
-        <span
-          className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-          style={{ fontSize: "18px" }}
-        >
-          search
-        </span>
+        <IconSearch
+          size={18}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+        />
         <input
           type="text"
           value={searchQuery}
@@ -226,12 +225,7 @@ export default function LocalExploreClient({
             onClick={() => setSearchQuery("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
           >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "16px" }}
-            >
-              close
-            </span>
+            <IconClose size={16} />
           </button>
         )}
       </div>
@@ -240,12 +234,7 @@ export default function LocalExploreClient({
       {selectedPlaceName && (
         <div className="flex items-center justify-between px-3 py-2 bg-orange-50/70 border border-orange-200/60 rounded-xl mb-4 text-xs">
           <div className="flex items-center gap-1.5 text-orange-900 font-medium">
-            <span
-              className="material-symbols-outlined text-[#ec7813]"
-              style={{ fontSize: "16px" }}
-            >
-              location_on
-            </span>
+            <IconLocation size={16} className="text-[#ec7813]" />
             <span>
               Filtered by: <strong>{selectedPlaceName}</strong>
             </span>

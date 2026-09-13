@@ -13,6 +13,7 @@ import OpenInAppBanner from "@/components/web/OpenInAppBanner";
 import ProductCarousel from "@/components/web/ProductCarousel";
 import WebHeader from "@/components/web/WebHeader";
 import StoreCardMini from "@/components/web/StoreCardMini";
+import { IconLocation } from "@/components/web/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -351,12 +352,7 @@ export default async function ProductWebPage({ params }: Props) {
           )}
           {placeName && (
             <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: "11px" }}
-              >
-                location_on
-              </span>
+              <IconLocation size={11} />
               {placeName}
             </span>
           )}

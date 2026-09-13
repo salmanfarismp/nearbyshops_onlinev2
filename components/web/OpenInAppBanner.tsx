@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { IconClose } from "@/components/web/icons";
 
 type Props = {
   /** The native app UUID of the store/product (for deep-link custom scheme) */
@@ -113,9 +114,7 @@ export default function OpenInAppBanner({ entityId, type, appScheme }: Props) {
         className="flex-shrink-0 text-slate-400 hover:text-slate-600"
         aria-label="Dismiss"
       >
-        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-          close
-        </span>
+        <IconClose size={18} />
       </button>
     </div>
   );

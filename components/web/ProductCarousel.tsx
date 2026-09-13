@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
+import { IconImage } from "@/components/web/icons";
 
 type Props = {
   images: string[];
@@ -59,9 +60,7 @@ export default function ProductCarousel({ images, productName }: Props) {
           ))
         ) : (
           <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-            <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "48px" }}>
-              image
-            </span>
+            <IconImage size={48} className="text-slate-400" />
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconHub } from "@/components/web/icons";
 
 export interface PlaceNode {
   id: number | string;
@@ -32,12 +33,7 @@ export default function LocationNetMesh({
       {/* ── Location Net: Complete Neighborhood Mesh ── */}
       <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
         <div className="flex items-center gap-1.5 mb-2.5">
-          <span
-            className="material-symbols-outlined text-[#ec7813]"
-            style={{ fontSize: "16px" }}
-          >
-            hub
-          </span>
+          <IconHub size={16} className="text-[#ec7813]" />
           <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
             Location Net • {city}
           </h4>

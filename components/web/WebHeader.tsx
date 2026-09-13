@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ShareLink from "@/components/ui/ShareLink";
+import { IconArrowBack, IconShare } from "@/components/web/icons";
 
 type WebHeaderProps = {
   backHref?: string;
@@ -48,12 +49,7 @@ export default function WebHeader({
             className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 flex-shrink-0"
             aria-label={backLabel}
           >
-            <span
-              className="material-symbols-outlined text-slate-700"
-              style={{ fontSize: "20px" }}
-            >
-              arrow_back_ios
-            </span>
+            <IconArrowBack size={20} className="text-slate-700" />
           </Link>
         )}
 
@@ -67,12 +63,7 @@ export default function WebHeader({
         {shareUrl && (
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
             <ShareLink href={shareUrl} aria-label="Share this page">
-              <span
-                className="material-symbols-outlined text-slate-700"
-                style={{ fontSize: "20px" }}
-              >
-                share
-              </span>
+              <IconShare size={20} className="text-slate-700" />
             </ShareLink>
           </div>
         )}
