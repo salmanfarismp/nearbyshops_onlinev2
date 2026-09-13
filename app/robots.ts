@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/web/shop/", "/web/product/"],
+        allow: ["/", "/web/shop/", "/web/product/", "/web/local/"],
         disallow: ["/account/", "/api/"],
       },
       // Explicitly allow leading AI search agents
@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
           "Google-Extended",
           "Applebot-Extended",
         ],
-        allow: ["/", "/web/shop/", "/web/product/", "/llms.txt"],
+        allow: ["/", "/web/shop/", "/web/product/", "/web/local/", "/llms.txt"],
         disallow: ["/account/", "/api/"],
       },
     ],

@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 
 type Props = {
   /** The native app UUID of the store/product (for deep-link custom scheme) */
-  entityId: string;
-  /** "shop" | "product" */
-  type: "shop" | "product";
+  entityId?: string;
+  /** "shop" | "product" | "explore" */
+  type?: "shop" | "product" | "explore";
+  /** Optional custom app scheme e.g. wandershops://explore?city=... */
+  appScheme?: string;
 };
 
 /**
@@ -15,7 +17,7 @@ type Props = {
  * the URL — so this banner is primarily for users who don't have the app.
  * It detects iOS/Android and shows the correct store link.
  */
-export default function OpenInAppBanner({ entityId, type }: Props) {
+export default function OpenInAppBanner({ entityId, type, appScheme }: Props) {
   const [visible, setVisible] = useState(false);
   const [storeUrl, setStoreUrl] = useState<string | null>(null);
 
@@ -45,9 +47,13 @@ export default function OpenInAppBanner({ entityId, type }: Props) {
 
   const handleOpenInApp = () => {
     // Try custom scheme first — silently fails if app not installed
-    const scheme = type === "shop"
-      ? `wandershops://shop/${entityId}`
-      : `wandershops://product/${entityId}`;
+    const scheme =
+      appScheme ||
+      (type === "shop"
+        ? `wandershops://shop/${entityId}`
+        : type === "explore"
+          ? `wandershops://explore${entityId ? `?city=${entityId}` : ""}`
+          : `wandershops://product/${entityId}`);
 
     // Use an iframe trick: custom scheme attempt + timeout to fallback to store
     const iframe = document.createElement("iframe");
