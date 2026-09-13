@@ -378,7 +378,7 @@ export default async function LocalCityCategoryPage({ params }: Props) {
       <WebHeader
         backHref={`/web/local/${citySlug}`}
         backLabel={`All ${city} Stores`}
-        title={`${category.name} in ${city}`}
+        title={`${category.name} stores in ${city}`}
         shareUrl={`${DOMAIN}/web/local/${citySlug}/category/${cleanCategorySlug}`}
       />
 
